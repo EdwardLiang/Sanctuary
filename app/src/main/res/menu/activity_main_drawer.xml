@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/decks"
+        android:title="Decks">
+        <menu>
+        </menu>
+
+    </item>
+
+    <item
+        android:id="@+id/nav_add_deck"
+        android:icon="@drawable/ic_library_add_black_24dp"
+        android:title="Add Deck" />
+
+    <item
+        android:id="@+id/nav_manage_decks"
+        android:icon="@drawable/ic_sd_card_black_24dp"
+        android:title="Manage Decks" />
+
+</menu>

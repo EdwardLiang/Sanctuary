@@ -1,0 +1,46 @@
+package com.edward.sanctuary;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by edward on 3/19/17.
+ */
+
+public class Card implements Serializable{
+    private String card_name;
+    private String card_description;
+
+    public String getCard_name() {
+        return card_name;
+    }
+
+    public void setCard_name(String card_name) {
+        this.card_name = card_name;
+    }
+
+    public String getCard_description() {
+        return card_description;
+    }
+
+    public void setCard_description(String card_description) {
+        this.card_description = card_description;
+    }
+
+    public static List<Card> createList(int size) {
+
+        List<Card> result = new ArrayList<Card>();
+        for (int i=1; i <= size; i++) {
+            Card ci = new Card();
+            ci.setCard_name("Name " + String.valueOf(i));
+            ci.setCard_description(String.valueOf(i) + " Description");
+
+            result.add(ci);
+
+        }
+
+        return result;
+    }
+
+}
