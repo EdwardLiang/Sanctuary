@@ -30,7 +30,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             selectedItems.delete(pos);
         }
         else{
-            selectedItems.put(pos, false);
+            selectedItems.put(pos, true);
         }
     }
 
@@ -44,6 +44,14 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         Card ci = cardList.get(i);
         cardViewHolder.vName.setText(ci.getCard_name());
         cardViewHolder.vDescription.setText(ci.getCard_description());
+        if(selectedItems.get(i, false)){
+            cardViewHolder.itemView.setSelected(true);
+            cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+        }
+        else{
+            cardViewHolder.itemView.setSelected(false);
+            cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+        }
     }
 
     @Override
@@ -60,10 +68,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
     public class CardViewHolder extends RecyclerView.ViewHolder{
         protected TextView vName;
         protected TextView vDescription;
+        protected View itemView;
 
 
         public CardViewHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
             vName = (TextView)itemView.findViewById(R.id.textView5);
             vDescription = (TextView)itemView.findViewById(R.id.textView6);
 

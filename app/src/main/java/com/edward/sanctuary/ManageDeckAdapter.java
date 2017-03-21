@@ -19,11 +19,13 @@ import java.util.List;
 public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.CardViewHolder> {
 
     SparseBooleanArray selectedItems;
+    SparseBooleanArray checkedItems;
     private List<Card> cardList;
 
     public ManageDeckAdapter(List<Card> cardList){
         this.cardList = cardList;
         selectedItems = new SparseBooleanArray();
+        checkedItems = new SparseBooleanArray();
     }
 
     public void toggleSelection(int pos){
@@ -32,9 +34,10 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.Ca
             selectedItems.delete(pos);
         }
         else{
-            selectedItems.put(pos, false);
+            selectedItems.put(pos, true);
         }
     }
+
 
     @Override
     public int getItemCount(){
@@ -46,6 +49,22 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.Ca
         Card ci = cardList.get(i);
         cardViewHolder.vName.setText(ci.getCard_name());
         cardViewHolder.vDescription.setText(ci.getCard_description());
+
+        if(selectedItems.get(i, false)){
+            cardViewHolder.itemView.setSelected(true);
+            cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+        }
+        else{
+            cardViewHolder.itemView.setSelected(false);
+            cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+        }
+        if(checkedItems.get(i, false)){
+            cardViewHolder.switch1.setChecked(true);
+        }
+        else{
+            cardViewHolder.switch1.setChecked(false);
+        }
+
     }
 
     @Override
@@ -62,13 +81,16 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.Ca
     public class CardViewHolder extends RecyclerView.ViewHolder{
         protected TextView vName;
         protected TextView vDescription;
+        protected View itemView;
+        protected Switch switch1;
 
 
         public CardViewHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
             vName = (TextView)itemView.findViewById(R.id.textView5);
             vDescription = (TextView)itemView.findViewById(R.id.textView6);
-            Switch switch1 = (Switch)itemView.findViewById(R.id.switch1);
+            switch1 = (Switch)itemView.findViewById(R.id.switch1);
 
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -93,6 +115,15 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.Ca
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     System.out.println("switched");
+                    int pos = getAdapterPosition();
+                    if(isChecked) {
+                        checkedItems.put(pos, true);
+                    }
+                    else{
+                        if(checkedItems.get(pos, false)){
+                            checkedItems.delete(pos);
+                        }
+                    }
                 }
             });
         }

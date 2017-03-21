@@ -27,16 +27,16 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".AddCard" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.MainActivity" />
+        <activity android:name=".AddCard">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.edward.sanctuary.MainActivity" />
         </activity>
-        <activity android:name=".SelectCardForDeck" />
+        <activity android:name=".SelectCardForDeck">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.edward.sanctuary.MainActivity" />
+        </activity>
         <activity
             android:name=".SelectCardsForDeck"
             android:label="@string/title_activity_select_cards_for_deck"
@@ -46,7 +46,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edward.sanctuary.SelectCardForDeck" />
         </activity>
-        <activity android:name=".ManageDecks"></activity>
+        <activity android:name=".ManageDecks" >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.edward.sanctuary.MainActivity" />
+        </activity>
+
+        <activity android:name=".SettingsActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.edward.sanctuary.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
