@@ -28,14 +28,14 @@
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".AddCard">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.edward.sanctuary.MainActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edward.sanctuary.MainActivity" />
         </activity>
         <activity android:name=".SelectCardForDeck">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.edward.sanctuary.MainActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edward.sanctuary.MainActivity" />
         </activity>
         <activity
             android:name=".SelectCardsForDeck"
@@ -46,16 +46,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edward.sanctuary.SelectCardForDeck" />
         </activity>
-        <activity android:name=".ManageDecks" >
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.edward.sanctuary.MainActivity" />
+        <activity android:name=".ManageDecks">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edward.sanctuary.MainActivity" />
         </activity>
-
         <activity android:name=".SettingsActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.edward.sanctuary.MainActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edward.sanctuary.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ManageCardsInDeck"
+            android:label="@string/title_activity_manage_cards_in_deck"
+            android:parentActivityName=".ManageDecks"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.edward.sanctuary.ManageDecks" />
         </activity>
     </application>
 

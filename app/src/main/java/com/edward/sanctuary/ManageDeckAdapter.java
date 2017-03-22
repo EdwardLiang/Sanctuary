@@ -1,5 +1,7 @@
 package com.edward.sanctuary;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
@@ -18,14 +20,16 @@ import java.util.List;
 
 public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.CardViewHolder> {
 
-    SparseBooleanArray selectedItems;
-    SparseBooleanArray checkedItems;
+    private SparseBooleanArray selectedItems;
+    private SparseBooleanArray checkedItems;
     private List<Card> cardList;
+    private Context context;
 
-    public ManageDeckAdapter(List<Card> cardList){
+    public ManageDeckAdapter(List<Card> cardList, Context context){
         this.cardList = cardList;
         selectedItems = new SparseBooleanArray();
         checkedItems = new SparseBooleanArray();
+        this.context = context;
     }
 
     public void toggleSelection(int pos){
@@ -96,19 +100,9 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<ManageDeckAdapter.Ca
                 @Override
                 public void onClick(View v){
                     int pos = getAdapterPosition();
-                    if(v.isSelected()){
-                        System.out.println("unselected");
-                        v.setBackgroundColor(Color.WHITE);
-                        toggleSelection(pos);
-                        v.setSelected(false);
-                    }
-                    else{
-                        System.out.println("selected");
-                        v.setBackgroundColor(Color.LTGRAY);
-                        toggleSelection(pos);
-                        v.setSelected(true);
-                    }
-
+                    Intent intent = new Intent(context, ManageCardsInDeck.class);
+                    intent.putExtra("Card", cardList.get(pos));
+                    context.startActivity(intent);
                 }
             });
             switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

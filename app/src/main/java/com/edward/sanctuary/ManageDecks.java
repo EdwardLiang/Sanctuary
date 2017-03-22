@@ -19,7 +19,7 @@ public class ManageDecks extends AppCompatActivity {
         setTitle("Manage Decks");
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.manage_deck_list);
-        ManageDeckAdapter ca = new ManageDeckAdapter(createList(30));
+        ManageDeckAdapter ca = new ManageDeckAdapter(createList(30), this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);

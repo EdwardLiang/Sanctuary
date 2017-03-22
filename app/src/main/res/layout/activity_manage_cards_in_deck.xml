@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.edward.sanctuary.MainActivity">
+    tools:context="com.edward.sanctuary.ManageCardsInDeck">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -16,12 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            android:theme="@style/AlertDialog.AppCompat.Light"
             app:popupTheme="@style/Orange" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_manage_cards_in_deck" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -31,15 +30,15 @@
         android:layout_gravity="bottom|end">
 
         <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        app:backgroundTint="@android:color/holo_orange_light"
-        app:srcCompat="@drawable/ic_add_black_24dp" />
+            android:id="@+id/fab3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:backgroundTint="@android:color/holo_orange_light"
+            app:srcCompat="@drawable/ic_add_black_24dp" />
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab2"
+            android:id="@+id/fab4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"

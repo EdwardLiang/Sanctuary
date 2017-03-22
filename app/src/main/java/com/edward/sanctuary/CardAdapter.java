@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
 
-    SparseBooleanArray selectedItems;
+    private SparseBooleanArray selectedItems;
     private List<Card> cardList;
 
     public CardAdapter(List<Card> cardList){

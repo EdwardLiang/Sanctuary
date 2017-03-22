@@ -95,4 +95,5 @@
     <string name="title_card_list">Cards</string>
     <string name="title_card_detail">Card Detail</string>
     <string name="title_activity_select_cards_for_deck">SelectCardsForDeck</string>
+    <string name="title_activity_manage_cards_in_deck">ManageCardsInDeck</string>
 </resources>

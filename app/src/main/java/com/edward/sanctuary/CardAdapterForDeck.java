@@ -64,7 +64,8 @@ public class CardAdapterForDeck extends RecyclerView.Adapter<CardAdapterForDeck.
                     int pos = getAdapterPosition();
                     Card card = cardList.get(pos);
                     Intent intent = new Intent(context, SelectCardsForDeck.class);
-                    intent.putExtra("Base Card", (Serializable) card);
+                    intent.putExtra("Card", (Serializable) card);
+                    intent.putExtra("Intent", "AddDeck");
                     context.startActivity(intent);
                 }
             });

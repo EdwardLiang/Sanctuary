@@ -1,8 +1,8 @@
 package com.edward.sanctuary;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,18 +19,24 @@ public class SelectCardsForDeck extends AppCompatActivity {
         setContentView(R.layout.activity_select_cards_for_deck);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        final String prev = getIntent().getStringExtra("Intent");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                System.out.println("TODO: Cards in deck updated");
+                if(prev != null && prev.equals("AddDeck")){
+                    Intent intent = new Intent(SelectCardsForDeck.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Card card = (Card)getIntent().getSerializableExtra("Base Card");
+        Card card = (Card)getIntent().getSerializableExtra("Card");
         setTitle("Deck For: " + card.getCard_name());
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
