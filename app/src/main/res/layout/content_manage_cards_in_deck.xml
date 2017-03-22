@@ -8,9 +8,26 @@
     tools:context="com.edward.sanctuary.ManageCardsInDeck"
     tools:showIn="@layout/activity_manage_cards_in_deck">
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/manageCardList" />
+    <LinearLayout
+        android:layout_width="368dp"
+        android:layout_height="495dp"
+        android:orientation="vertical">
+
+        <SearchView
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="vertical"
+            android:layout_marginTop="7dp">
+
+        </SearchView>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/manageCardList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

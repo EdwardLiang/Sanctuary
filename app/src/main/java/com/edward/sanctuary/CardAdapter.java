@@ -6,6 +6,7 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -14,14 +15,29 @@ import java.util.List;
  * Created by edward on 3/19/17.
  */
 
-public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
+public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private SparseBooleanArray selectedItems;
     private List<Card> cardList;
 
+    private final int VIEW_ITEM = 0;
+    private final int VIEW_LOADING = 1;
+    private boolean isLoading;
+    private OnMoreLoadListener mOnLoadMoreListener;
+
+
     public CardAdapter(List<Card> cardList){
         this.cardList = cardList;
         selectedItems = new SparseBooleanArray();
+        isLoading = false;
+    }
+
+    public void setOnMoreLoadListener(OnMoreLoadListener m){
+        this.mOnLoadMoreListener = m;
+    }
+
+    public OnMoreLoadListener getOnMoreLoadListener(){
+        return mOnLoadMoreListener;
     }
 
     public void toggleSelection(int pos){
@@ -33,6 +49,20 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
             selectedItems.put(pos, true);
         }
     }
+    public boolean isLoading(){
+        if(isLoading){
+            return true;
+        }
+        return false;
+    }
+    public void setIsLoading(boolean bool){
+        if(bool){
+            isLoading = true;
+        }
+        else{
+            isLoading = false;
+        }
+    }
 
     @Override
     public int getItemCount(){
@@ -40,29 +70,60 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
     }
 
     @Override
-    public void onBindViewHolder(CardViewHolder cardViewHolder, int i) {
-        Card ci = cardList.get(i);
-        cardViewHolder.vName.setText(ci.getCard_name());
-        cardViewHolder.vDescription.setText(ci.getCard_description());
-        if(selectedItems.get(i, false)){
-            cardViewHolder.itemView.setSelected(true);
-            cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
+        if(viewHolder instanceof CardViewHolder) {
+            CardViewHolder cardViewHolder = (CardViewHolder)viewHolder;
+            Card ci = cardList.get(i);
+            cardViewHolder.vName.setText(ci.getCard_name());
+            cardViewHolder.vDescription.setText(ci.getCard_description());
+            if (selectedItems.get(i, false)) {
+                cardViewHolder.itemView.setSelected(true);
+                cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+            } else {
+                cardViewHolder.itemView.setSelected(false);
+                cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+            }
         }
         else{
-            cardViewHolder.itemView.setSelected(false);
-            cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) viewHolder;
+            loadingViewHolder.progressBar.setIndeterminate(true);
         }
     }
 
     @Override
-    public CardViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView = LayoutInflater.
-                from(viewGroup.getContext()).
-                inflate(R.layout.card, viewGroup, false);
-        itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
-        CardViewHolder cH = new CardViewHolder(itemView);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 
-        return cH;
+        if (i == VIEW_ITEM) {
+            View itemView = LayoutInflater.
+                    from(viewGroup.getContext()).
+                    inflate(R.layout.card, viewGroup, false);
+            itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
+            CardViewHolder cH = new CardViewHolder(itemView);
+            return cH;
+
+        } else if (i == VIEW_LOADING) {
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.loading, viewGroup, false);
+            return new LoadingViewHolder(view);
+        }
+
+        return null;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(cardList.get(position) == null){
+            return VIEW_LOADING;
+        }
+        return VIEW_ITEM;
+    }
+
+    static class LoadingViewHolder extends RecyclerView.ViewHolder {
+        public ProgressBar progressBar;
+
+        public LoadingViewHolder(View itemView) {
+            super(itemView);
+            progressBar = (ProgressBar) itemView.findViewById(R.id.progressBar1);
+        }
     }
 
     public class CardViewHolder extends RecyclerView.ViewHolder{
