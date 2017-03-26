@@ -32,6 +32,14 @@ public class Session {
         prefs.edit().putString("username", str).apply();
     }
 
+    public void setUserId(Long id){
+        prefs.edit().putLong("id", id).apply();
+    }
+
+    public long getUserId(){
+        return prefs.getLong("id", -1);
+    }
+
     public String getUsername(){
         return prefs.getString("username", "");
     }

@@ -232,6 +232,7 @@ public class LoginActivity extends AppCompatActivity {
             if (success) {
                 Intent intent = new Intent(login, MainActivity.class);
                 Session.getInstance(login).setUsername(username);
+                Session.getInstance(login).setUserId(Database.getUserId(username, login));
                 startActivity(intent);
                 finish();
             } else {

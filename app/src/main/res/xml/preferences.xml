@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+<!--
     <EditTextPreference android:title="Your Name"
         android:key="username"
         android:summary="Please provide your username"></EditTextPreference>
@@ -17,4 +17,5 @@
             android:summary="click this little box"/>
 
     </PreferenceCategory>
+    -->
 </PreferenceScreen>

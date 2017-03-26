@@ -11,6 +11,18 @@ import java.util.List;
 public class Card implements Serializable{
     private String card_name;
     private String card_description;
+    private long creation_date;
+    private long card_id;
+
+    public Card(String name, String desc, long date, long id){
+        card_name = name;
+        card_description = desc;
+        creation_date = date;
+        card_id = id;
+    }
+    public Card(){
+
+    }
 
     public String getCard_name() {
         return card_name;

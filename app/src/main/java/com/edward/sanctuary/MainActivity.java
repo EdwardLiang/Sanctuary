@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,16 +20,17 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
+import com.edward.sanctuary.database.Database;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.edward.sanctuary.Card.createList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private NavigationView navigationView;
     private List<Card> cards;
+    private CardAdapter ca;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                  //       .setAction("Action", null).show();
                 Intent intent = new Intent(view.getContext(), AddCard.class);
-                startActivity(intent);
+                startActivityForResult(intent, 2301);
             }
         });
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
@@ -99,8 +101,8 @@ public class MainActivity extends AppCompatActivity
         //TEMPORARY: ADD decks for sidebar here
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
-        this.cards = createList(20);
-        final CardAdapter ca = new CardAdapter(cards);
+        this.cards = Database.getCards(this, Session.getInstance(this).getUserId());
+        ca = new CardAdapter(cards);
         recList.setAdapter(ca);
 
 
@@ -247,4 +249,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 2301 && resultCode == 188){
+            cards = Database.getCards(this, Session.getInstance(this).getUserId());
+            ca.setCardList(cards);
+            ca.notifyDataSetChanged();
+            Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
+            snackbar.show();
+        }
+    }
 }

@@ -32,6 +32,10 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         isLoading = false;
     }
 
+    public void setCardList(List<Card> cards){
+        cardList = cards;
+    }
+
     public void setOnMoreLoadListener(OnMoreLoadListener m){
         this.mOnLoadMoreListener = m;
     }
