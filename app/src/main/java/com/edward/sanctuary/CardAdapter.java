@@ -92,7 +92,6 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-
         if (i == VIEW_ITEM) {
             View itemView = LayoutInflater.
                     from(viewGroup.getContext()).

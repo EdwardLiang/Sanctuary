@@ -15,14 +15,43 @@ import java.util.List;
  * Created by edward on 3/19/17.
  */
 
-public class CardAdapterForDeck extends RecyclerView.Adapter<CardAdapterForDeck.CardViewHolder> {
+public class CardAdapterForDeck extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Card> cardList;
     private Context context;
 
+    private final int VIEW_ITEM = 0;
+    private final int VIEW_LOADING = 1;
+    private boolean isLoading;
+    private OnMoreLoadListener mOnLoadMoreListener;
+
     public CardAdapterForDeck(List<Card> cardList, Context context){
         this.cardList = cardList;
         this.context = context;
+        isLoading = false;
+    }
+
+    public void setOnMoreLoadListener(OnMoreLoadListener m){
+        this.mOnLoadMoreListener = m;
+    }
+
+    public OnMoreLoadListener getOnMoreLoadListener(){
+        return mOnLoadMoreListener;
+    }
+
+    public boolean isLoading(){
+        if(isLoading){
+            return true;
+        }
+        return false;
+    }
+    public void setIsLoading(boolean bool){
+        if(bool){
+            isLoading = true;
+        }
+        else{
+            isLoading = false;
+        }
     }
 
     @Override
@@ -31,21 +60,44 @@ public class CardAdapterForDeck extends RecyclerView.Adapter<CardAdapterForDeck.
     }
 
     @Override
-    public void onBindViewHolder(CardViewHolder cardViewHolder, int i) {
-        Card ci = cardList.get(i);
-        cardViewHolder.vName.setText(ci.getCard_name());
-        cardViewHolder.vDescription.setText(ci.getCard_description());
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
+
+        if(viewHolder instanceof CardViewHolder) {
+            CardViewHolder cardViewHolder = (CardViewHolder)viewHolder;
+            Card ci = cardList.get(i);
+            cardViewHolder.vName.setText(ci.getCard_name());
+            cardViewHolder.vDescription.setText(ci.getCard_description());
+        }
+        else{
+            CardAdapter.LoadingViewHolder loadingViewHolder = (CardAdapter.LoadingViewHolder) viewHolder;
+            loadingViewHolder.progressBar.setIndeterminate(true);
+        }
+
     }
 
     @Override
-    public CardViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View itemView = LayoutInflater.
-                from(viewGroup.getContext()).
-                inflate(R.layout.card, viewGroup, false);
-        itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
-        CardViewHolder cH = new CardViewHolder(itemView);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        if (i == VIEW_ITEM) {
+            View itemView = LayoutInflater.
+                    from(viewGroup.getContext()).
+                    inflate(R.layout.card, viewGroup, false);
+            itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
+            CardViewHolder cH = new CardViewHolder(itemView);
 
-        return cH;
+            return cH;
+        } else if (i == VIEW_LOADING) {
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.loading, viewGroup, false);
+            return new CardAdapter.LoadingViewHolder(view);
+        }
+        return null;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(cardList.get(position) == null){
+            return VIEW_LOADING;
+        }
+        return VIEW_ITEM;
     }
 
     public class CardViewHolder extends RecyclerView.ViewHolder{
