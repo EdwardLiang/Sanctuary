@@ -10,20 +10,29 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "Sanctuary.db";
+    private static DBHelper instance;
 
-    public DBHelper(Context context) {
+    public static synchronized DBHelper getInstance(Context context){
+        if(instance == null){
+            instance = new DBHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        db.execSQL(SQLCommands.SQL_CREATE_ENTRIES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL(SQLCommands.SQL_DELETE_ENTRIES);
+        db.execSQL(SQLCommands.SQL_CREATE_ENTRIES);
     }
 }

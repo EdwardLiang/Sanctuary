@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.edward.sanctuary.database.Database;
+
 import static com.edward.sanctuary.R.id.login;
 
 /**
@@ -33,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "sulcata:asdfq", "bar@example.com:world"
+            "sulcata:asdfq"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -181,12 +183,12 @@ public class LoginActivity extends AppCompatActivity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String username;
         private final String mPassword;
         private Activity login;
 
-        UserLoginTask(Activity login, String email, String password) {
-            mEmail = email;
+        UserLoginTask(Activity login, String user, String password) {
+            username = user;
             mPassword = password;
             this.login = login;
         }
@@ -197,21 +199,29 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 // Simulate network access.
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
+            /*for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
+                if (pieces[0].equals(username)) {
                     // Account exists, return true if the password matches.
                     return pieces[1].equals(mPassword);
                 }
+            }*/
+            if(Database.isUser(username, login)){
+                if(Database.verifyUser(username, mPassword, login)){
+                    return true;
+                }
+                return false;
             }
-
-            // TODO: register the new account here.
-            return false;
+            else{
+                //Register new User
+                Database.addUser(username, mPassword, login);
+                return true;
+            }
         }
 
         @Override
@@ -220,7 +230,9 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                startActivity(new Intent(login, MainActivity.class));
+                Intent intent = new Intent(login, MainActivity.class);
+                Session.getInstance(login).setUsername(username);
+                startActivity(intent);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

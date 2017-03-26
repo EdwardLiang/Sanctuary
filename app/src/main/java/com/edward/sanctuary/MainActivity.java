@@ -3,6 +3,7 @@ package com.edward.sanctuary;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        System.out.println("Welcome: " + Session.getInstance(this).getUsername());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -237,6 +239,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (id == R.id.logout) {
             startActivity(new Intent(this, LoginActivity.class));
+            Session.destroyInstance();
             finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
