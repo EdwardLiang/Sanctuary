@@ -28,13 +28,21 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private final int CARDS_PER_PAGE = 10;
+
     private NavigationView navigationView;
     private List<Card> cards;
     private CardAdapter ca;
+    private int pagesLoaded;
+    private boolean end;
+    private double seed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pagesLoaded = 1;
+        seed = Database.generateSeed();
+        end = false;
         setTitle("Sanctuary");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -101,9 +109,10 @@ public class MainActivity extends AppCompatActivity
         //TEMPORARY: ADD decks for sidebar here
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
-        this.cards = Database.getCards(this, Session.getInstance(this).getUserId());
+        this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
         ca = new CardAdapter(cards);
         recList.setAdapter(ca);
+        recList.setHasFixedSize(true);
 
 
         final LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -128,18 +137,26 @@ public class MainActivity extends AppCompatActivity
 
                 final Runnable r = new Runnable() {
                     public void run() {
-
+                        pagesLoaded++;
                         cards.remove(cards.size() - 1);
                         ca.notifyItemRemoved(cards.size());
 
-                        Card c = new Card();
-                        c.setCard_name("Loaded Card");
-                        cards.add(c);
-                        ca.notifyItemInserted(cards.size() - 1);
+                        //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
+                        cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+
+                        if(cards.size() < pagesLoaded*10){
+                            Card card = new Card();
+                            card.setCard_name("No More Cards!");
+                            card.setCard_description("You've reached the end");
+                            cards.add(card);
+                            end = true;
+                        }
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
                         ca.setIsLoading(false);
                     }
                 };
-                handler.postDelayed(r,2000);
+                handler.postDelayed(r,1000);
             }
         });
 
@@ -152,7 +169,7 @@ public class MainActivity extends AppCompatActivity
                 int lastVisibleItem = llm.findLastVisibleItemPosition();
                 int visibleThreshold = 5;
 
-                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1) {
+                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1 && !end) {
                     if (ca.getOnMoreLoadListener() != null) {
                         ca.getOnMoreLoadListener().onLoadMore();
                     }
@@ -252,6 +269,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 2301 && resultCode == 188){
+            end = false;
             cards = Database.getCards(this, Session.getInstance(this).getUserId());
             ca.setCardList(cards);
             ca.notifyDataSetChanged();

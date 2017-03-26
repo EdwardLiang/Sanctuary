@@ -7,16 +7,20 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.edward.sanctuary.Card;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by edward on 3/24/17.
  */
 
 public class Database {
+
+    private static final Random RANDOM = new SecureRandom();
 
     private Database() {
     }
@@ -95,7 +99,82 @@ public class Database {
         return cards;
     }
 
+    public static List<Card> getCards(Context context, long userId, int amount){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ?";
+        String[] selectionArgs = { Long.toString(userId) };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+                String.valueOf(amount)
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
+
+    public static List<Card> getRandomCards(Context context, long userId, int amount, double seed){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ?";
+        String[] selectionArgs = { Long.toString(userId) };
+        //String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+        String sortOrder = "(substr("+ CardContract.CardEntry._ID +" * " + seed + ", length("+ CardContract.CardEntry._ID + ") + 2))";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+                String.valueOf(amount)
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
 
     public static boolean isUser(String name, Context context){
         DBHelper dbHelper = DBHelper.getInstance(context);
@@ -210,5 +289,9 @@ public class Database {
             return date.getTime();
         }
         return null;
+    }
+    public static double generateSeed(){
+        double seed = RANDOM.nextDouble();
+        return seed;
     }
 }

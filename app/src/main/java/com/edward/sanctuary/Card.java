@@ -24,6 +24,10 @@ public class Card implements Serializable{
 
     }
 
+    public long getCard_id(){
+        return card_id;
+    }
+
     public String getCard_name() {
         return card_name;
     }
