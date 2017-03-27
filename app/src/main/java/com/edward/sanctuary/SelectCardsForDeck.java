@@ -9,10 +9,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.edward.sanctuary.database.Database;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SelectCardsForDeck extends AppCompatActivity {
 
@@ -22,6 +26,11 @@ public class SelectCardsForDeck extends AppCompatActivity {
     private int pagesLoaded;
     private boolean end;
     private double seed;
+    private int pagesLoadedQuery;
+    private boolean querying;
+    private String queryText;
+    private Lock reloading;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,10 @@ public class SelectCardsForDeck extends AppCompatActivity {
         pagesLoaded = 1;
         end = false;
         seed = Database.generateSeed();
+        pagesLoadedQuery = 1;
+        querying = false;
+        reloading = new ReentrantLock();
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -81,27 +94,40 @@ public class SelectCardsForDeck extends AppCompatActivity {
 
                 final Runnable r = new Runnable() {
                     public void run() {
-                        pagesLoaded++;
-                        if(cards.size() > 0 && cards.get(cards.size() - 1).getCard_id() == -1) {
-                            //Possible bug: race condition?
-                            cards.remove(cards.size() - 1);
-                            ca.notifyItemRemoved(cards.size());
-                        }
+                        try {
+                            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                            if(cards.size() > 0 && cards.get(cards.size() - 1) == null) {
+                                cards.remove(cards.size() - 1);
+                                ca.notifyItemRemoved(cards.size());
+                            }
 
-                        //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
-                        cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                            //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
+                            if(querying){
+                                pagesLoadedQuery++;
+                                cards = Database.getCardsSearch(SelectCardsForDeck.this, queryText, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                            }
+                            else{
+                                pagesLoaded++;
+                                cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                            }
 
-                        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
-                            Card card = new Card();
-                            card.setCard_name("No More Cards!");
-                            card.setCard_description("You've reached the end");
-                            card.setCard_id(-1);
-                            cards.add(card);
-                            end = true;
+                            if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+                                Card card = new Card();
+                                card.setCard_name("No More Cards!");
+                                card.setCard_description("You've reached the end");
+                                card.setCard_id(-1);
+                                cards.add(card);
+                                end = true;
+                            }
+                            ca.setCardList(cards);
+                            ca.notifyDataSetChanged();
+                            ca.setIsLoading(false);
+                            reloading.unlock();
+
+                        } catch (InterruptedException e) {
+                            System.out.println("Could not reload! Lock is bound!");
+                            e.printStackTrace();
                         }
-                        ca.setCardList(cards);
-                        ca.notifyDataSetChanged();
-                        ca.setIsLoading(false);
                     }
                 };
                 handler.postDelayed(r,1000);
@@ -127,8 +153,42 @@ public class SelectCardsForDeck extends AppCompatActivity {
             }
         });
 
+        SearchView view = (SearchView)findViewById(R.id.search);
+        view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
-
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    if(newText.equals("")){
+                        end = false;
+                        querying = false;
+                        cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
+                    }
+                    else{
+                        end = false;
+                        querying = true;
+                        pagesLoadedQuery = 1;
+                        queryText = newText;
+                        cards = Database.getCardsSearch(SelectCardsForDeck.this, newText, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
+                    }
+                    reloading.unlock();
+                    return false;
+                } catch (InterruptedException e) {
+                    System.out.println("Lock Bound! Cannot load based on query!");
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        });
 
     }
 
