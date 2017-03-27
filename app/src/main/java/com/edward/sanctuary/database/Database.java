@@ -137,6 +137,39 @@ public class Database {
         return cards;
     }
 
+    public static boolean newCard(Context context, long userId, String name){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " = ?";
+        String[] selectionArgs = { Long.toString(userId) , name};
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        if(cursor.getCount() > 0){
+            return false;
+        }
+        return true;
+    }
+
+
     public static List<Card> getRandomCards(Context context, long userId, int amount, double seed){
         // Gets the data repository in write mode
         List<Card> cards = new LinkedList<Card>();

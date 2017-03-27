@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 2301 && resultCode == 188){
             end = false;
-            cards = Database.getCards(this, Session.getInstance(this).getUserId());
+            this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
             ca.setCardList(cards);
             ca.notifyDataSetChanged();
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!

@@ -28,11 +28,17 @@ public class AddCard extends AppCompatActivity {
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //       .setAction("Action", null).show();
-                Database.addCard(name.getText().toString(), description.getText().toString(),
-                        Session.getInstance(AddCard.this).getUserId(), AddCard.this);
-                Intent intent = getIntent();
-                setResult(188, intent);
-                finish();
+                if(Database.newCard(AddCard.this, Session.getInstance(AddCard.this).getUserId(), name.getText().toString())){
+                    Database.addCard(name.getText().toString(), description.getText().toString(),
+                            Session.getInstance(AddCard.this).getUserId(), AddCard.this);
+                     Intent intent = getIntent();
+                     setResult(188, intent);
+                     finish();
+                }
+                else{
+                    name.setError("Duplicate Card Name!");
+                    name.requestFocus();
+                }
             }
         });
         setupActionBar();
