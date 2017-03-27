@@ -145,19 +145,20 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 @Override
                 public void onClick(View v){
                     int pos = getAdapterPosition();
-                    if(v.isSelected()){
-                        System.out.println("unselected");
-                        v.setBackgroundColor(Color.WHITE);
-                        toggleSelection(pos);
-                        v.setSelected(false);
+                    if(cardList.get(pos).getCard_id() != -1) {
+                        //-1 when the card is the "no more cards" card
+                        if (v.isSelected()) {
+                            System.out.println("unselected");
+                            v.setBackgroundColor(Color.WHITE);
+                            toggleSelection(pos);
+                            v.setSelected(false);
+                        } else {
+                            System.out.println("selected");
+                            v.setBackgroundColor(Color.LTGRAY);
+                            toggleSelection(pos);
+                            v.setSelected(true);
+                        }
                     }
-                    else{
-                        System.out.println("selected");
-                        v.setBackgroundColor(Color.LTGRAY);
-                        toggleSelection(pos);
-                        v.setSelected(true);
-                    }
-
                 }
             });
         }

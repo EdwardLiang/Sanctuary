@@ -10,13 +10,18 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import java.util.List;
+import com.edward.sanctuary.database.Database;
 
-import static com.edward.sanctuary.Card.createList;
+import java.util.List;
 
 public class SelectCardsForDeck extends AppCompatActivity {
 
+    private final int CARDS_PER_PAGE = 10;
     private List<Card> cards;
+    private CardAdapter ca;
+    private int pagesLoaded;
+    private boolean end;
+    private double seed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +30,10 @@ public class SelectCardsForDeck extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final String prev = getIntent().getStringExtra("Intent");
+
+        pagesLoaded = 1;
+        end = false;
+        seed = Database.generateSeed();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -45,8 +54,8 @@ public class SelectCardsForDeck extends AppCompatActivity {
         setTitle("Select For: " + card.getCard_name());
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
-        cards = createList(20);
-        final CardAdapter ca = new CardAdapter(cards);
+        cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        ca = new CardAdapter(cards);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);
@@ -72,18 +81,27 @@ public class SelectCardsForDeck extends AppCompatActivity {
 
                 final Runnable r = new Runnable() {
                     public void run() {
-
+                        pagesLoaded++;
                         cards.remove(cards.size() - 1);
                         ca.notifyItemRemoved(cards.size());
 
-                        Card c = new Card();
-                        c.setCard_name("Loaded Card");
-                        cards.add(c);
-                        ca.notifyItemInserted(cards.size() - 1);
+                        //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
+                        cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+
+                        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+                            Card card = new Card();
+                            card.setCard_name("No More Cards!");
+                            card.setCard_description("You've reached the end");
+                            card.setCard_id(-1);
+                            cards.add(card);
+                            end = true;
+                        }
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
                         ca.setIsLoading(false);
                     }
                 };
-                handler.postDelayed(r,2000);
+                handler.postDelayed(r,1000);
             }
         });
 
@@ -96,7 +114,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                 int lastVisibleItem = llm.findLastVisibleItemPosition();
                 int visibleThreshold = 5;
 
-                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1) {
+                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1 && !end) {
                     if (ca.getOnMoreLoadListener() != null) {
                         ca.getOnMoreLoadListener().onLoadMore();
                     }

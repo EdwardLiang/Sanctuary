@@ -144,10 +144,11 @@ public class MainActivity extends AppCompatActivity
                         //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
                         cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
 
-                        if(cards.size() < pagesLoaded*10){
+                        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
                             Card card = new Card();
                             card.setCard_name("No More Cards!");
                             card.setCard_description("You've reached the end");
+                            card.setCard_id(-1);
                             cards.add(card);
                             end = true;
                         }

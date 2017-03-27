@@ -8,22 +8,31 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
-import java.util.List;
+import com.edward.sanctuary.database.Database;
 
-import static com.edward.sanctuary.Card.createList;
+import java.util.List;
 
 public class SelectCardForDeck extends AppCompatActivity {
 
+    private final int CARDS_PER_PAGE = 10;
     private List<Card> cards;
+    private CardAdapterForDeck ca;
+    private int pagesLoaded;
+    private boolean end;
+    private double seed;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_card_for_deck);
+        pagesLoaded = 1;
+        end = false;
+        seed = Database.generateSeed();
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
-        cards = createList(20);
-        final CardAdapterForDeck ca = new CardAdapterForDeck(cards, this);
+        cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        ca = new CardAdapterForDeck(cards, this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);
@@ -52,18 +61,27 @@ public class SelectCardForDeck extends AppCompatActivity {
 
                 final Runnable r = new Runnable() {
                     public void run() {
-
+                        pagesLoaded++;
                         cards.remove(cards.size() - 1);
                         ca.notifyItemRemoved(cards.size());
 
-                        Card c = new Card();
-                        c.setCard_name("Loaded Card");
-                        cards.add(c);
-                        ca.notifyItemInserted(cards.size() - 1);
+                        //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
+                        cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+
+                        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+                            Card card = new Card();
+                            card.setCard_name("No More Cards!");
+                            card.setCard_description("You've reached the end");
+                            card.setCard_id(-1);
+                            cards.add(card);
+                            end = true;
+                        }
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
                         ca.setIsLoading(false);
                     }
                 };
-                handler.postDelayed(r,2000);
+                handler.postDelayed(r,1000);
             }
         });
 
@@ -76,7 +94,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                 int lastVisibleItem = llm.findLastVisibleItemPosition();
                 int visibleThreshold = 5;
 
-                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1) {
+                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1 && !end) {
                     if (ca.getOnMoreLoadListener() != null) {
                         ca.getOnMoreLoadListener().onLoadMore();
                     }
@@ -85,6 +103,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                 }
             }
         });
+
 
     }
 

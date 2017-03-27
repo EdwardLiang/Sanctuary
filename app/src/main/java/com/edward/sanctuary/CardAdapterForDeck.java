@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.edward.sanctuary.R.layout.card;
+
 /**
  * Created by edward on 3/19/17.
  */
@@ -37,6 +39,10 @@ public class CardAdapterForDeck extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public OnMoreLoadListener getOnMoreLoadListener(){
         return mOnLoadMoreListener;
+    }
+
+    public void setCardList(List<Card> cards){
+        cardList = cards;
     }
 
     public boolean isLoading(){
@@ -80,7 +86,7 @@ public class CardAdapterForDeck extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (i == VIEW_ITEM) {
             View itemView = LayoutInflater.
                     from(viewGroup.getContext()).
-                    inflate(R.layout.card, viewGroup, false);
+                    inflate(card, viewGroup, false);
             itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
             CardViewHolder cH = new CardViewHolder(itemView);
 
@@ -114,11 +120,14 @@ public class CardAdapterForDeck extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View v){
                     int pos = getAdapterPosition();
-                    Card card = cardList.get(pos);
-                    Intent intent = new Intent(context, SelectCardsForDeck.class);
-                    intent.putExtra("Card", (Serializable) card);
-                    intent.putExtra("Intent", "AddDeck");
-                    context.startActivity(intent);
+                    if(cardList.get(pos).getCard_id() != -1) {
+                        //-1 when the card is the "no more cards" card
+                        Card card = cardList.get(pos);
+                        Intent intent = new Intent(context, SelectCardsForDeck.class);
+                        intent.putExtra("Card", (Serializable) card);
+                        intent.putExtra("Intent", "AddDeck");
+                        context.startActivity(intent);
+                    }
                 }
             });
         }
