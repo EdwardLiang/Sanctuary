@@ -83,7 +83,25 @@ public class MainActivity extends AppCompatActivity
                         {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                //TODO: STUFF HERE
+                                try {
+                                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                                    List<Card> toDelete = ca.getSelected();
+                                    int count = 0;
+                                    for(Card a : toDelete){
+                                        Database.deleteCard(MainActivity.this, a);
+                                        count++;
+                                    }
+                                    reloadCards();
+                                    addNoMoreCard();
+                                    ca.clearSelected();
+                                    ca.setCardList(cards);
+                                    ca.notifyDataSetChanged();
+                                    Snackbar snackbar = Snackbar.make(navigationView, count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
+                                    snackbar.show();
+                                    reloading.unlock();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                         })
@@ -159,21 +177,14 @@ public class MainActivity extends AppCompatActivity
                             //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
                             if(querying){
                                 pagesLoadedQuery++;
-                                cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
                             }
                             else{
                                 pagesLoaded++;
-                                cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                             }
+                            reloadCards();
 
-                            if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
-                                Card card = new Card();
-                                card.setCard_name("No More Cards!");
-                                card.setCard_description("You've reached the end");
-                                card.setCard_id(-1);
-                                cards.add(card);
-                                end = true;
-                            }
+                            addNoMoreCard();
+
                             ca.setCardList(cards);
                             ca.notifyDataSetChanged();
                             ca.setIsLoading(false);
@@ -222,19 +233,17 @@ public class MainActivity extends AppCompatActivity
                     if(newText.equals("")){
                         end = false;
                         querying = false;
-                        cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-                        ca.setCardList(cards);
-                        ca.notifyDataSetChanged();
                     }
                     else{
                         end = false;
                         querying = true;
                         pagesLoadedQuery = 1;
                         queryText = newText;
-                        cards = Database.getCardsSearch(MainActivity.this, newText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-                        ca.setCardList(cards);
-                        ca.notifyDataSetChanged();
                     }
+                    reloadCards();
+                    addNoMoreCard();
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
                     reloading.unlock();
                     return false;
                 } catch (InterruptedException e) {
@@ -244,6 +253,26 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
+    }
+
+    public void reloadCards(){
+        if(querying){
+            cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+        }
+        else{
+            cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        }
+    }
+
+    public void addNoMoreCard(){
+        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+            Card card = new Card();
+            card.setCard_name("No More Cards!");
+            card.setCard_description("You've reached the end");
+            card.setCard_id(-1);
+            cards.add(card);
+            end = true;
+        }
     }
 
     public void addDecks(List<Card> decks){
@@ -334,16 +363,11 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 2301 && resultCode == 188){
             end = false;
-            if(!querying) {
-                this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded * CARDS_PER_PAGE, seed);
-                ca.setCardList(cards);
-                ca.notifyDataSetChanged();
-            }
-            else{
-                cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-                ca.setCardList(cards);
-                ca.notifyDataSetChanged();
-            }
+            reloadCards();
+            addNoMoreCard();
+            ca.setCardList(cards);
+            ca.notifyDataSetChanged();
+
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
             snackbar.show();
         }

@@ -212,6 +212,19 @@ public class Database {
         return true;
     }
 
+    public static void deleteCard(Context context, Card card){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Define 'where' part of query.
+        String selection = CardContract.CardEntry._ID + " = ?";
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = { String.valueOf(card.getCard_id()) };
+        // Issue SQL statement.
+        db.delete(CardContract.CardEntry.TABLE_NAME, selection, selectionArgs);
+
+    }
+
 
     public static List<Card> getRandomCards(Context context, long userId, int amount, double seed){
         // Gets the data repository in write mode

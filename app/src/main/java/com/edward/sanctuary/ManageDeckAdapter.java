@@ -112,7 +112,7 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (i == VIEW_ITEM) {
             View itemView = LayoutInflater.
                     from(viewGroup.getContext()).
-                    inflate(R.layout.card_with_checkbox, viewGroup, false);
+                    inflate(R.layout.card_with_switch, viewGroup, false);
             itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
             CardViewHolder cH = new CardViewHolder(itemView);
             return cH;

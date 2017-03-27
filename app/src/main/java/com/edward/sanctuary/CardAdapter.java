@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,17 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.cardList = cardList;
         selectedItems = new SparseBooleanArray();
         isLoading = false;
+    }
+    public List<Card> getSelected(){
+        List<Card> cL = new ArrayList<Card>();
+        for(int i = 0; i < selectedItems.size(); i++) {
+            int key = selectedItems.keyAt(i);
+            cL.add(cardList.get(key));
+        }
+        return cL;
+    }
+    public void clearSelected(){
+        selectedItems.clear();
     }
 
     public void setCardList(List<Card> cards){
