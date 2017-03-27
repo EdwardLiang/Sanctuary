@@ -339,6 +339,11 @@ public class MainActivity extends AppCompatActivity
                 ca.setCardList(cards);
                 ca.notifyDataSetChanged();
             }
+            else{
+                cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                ca.setCardList(cards);
+                ca.notifyDataSetChanged();
+            }
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
             snackbar.show();
         }
