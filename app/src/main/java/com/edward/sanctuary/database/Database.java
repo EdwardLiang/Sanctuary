@@ -149,7 +149,7 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
+        /*String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
         String[] selectionArgs = { Long.toString(userId), "%" + term + "%" };
         String sortOrder = "(CASE WHEN " + CardContract.CardEntry.NAME + " = '" + term + "' THEN 1 WHEN " +
                 CardContract.CardEntry.NAME + " LIKE '" + term + "%' THEN 2 ELSE 3 END)," + CardContract.CardEntry.NAME;
@@ -163,7 +163,10 @@ public class Database {
                 null,
                 sortOrder,
                 String.valueOf(amount)
-        );
+        );*/
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%" };
+
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING_TEN, selectionArgs);
 
         while(cursor.moveToNext()) {
             long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));

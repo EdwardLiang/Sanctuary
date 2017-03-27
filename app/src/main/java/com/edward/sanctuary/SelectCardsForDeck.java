@@ -82,8 +82,11 @@ public class SelectCardsForDeck extends AppCompatActivity {
                 final Runnable r = new Runnable() {
                     public void run() {
                         pagesLoaded++;
-                        cards.remove(cards.size() - 1);
-                        ca.notifyItemRemoved(cards.size());
+                        if(cards.size() > 0 && cards.get(cards.size() - 1).getCard_id() == -1) {
+                            //Possible bug: race condition?
+                            cards.remove(cards.size() - 1);
+                            ca.notifyItemRemoved(cards.size());
+                        }
 
                         //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
                         cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
@@ -123,6 +126,8 @@ public class SelectCardsForDeck extends AppCompatActivity {
                 }
             }
         });
+
+
 
 
     }

@@ -31,5 +31,8 @@ public final class SQLCommands {
     public static final String SQL_DELETE_ENTRIES_CARD =
             "DROP TABLE IF EXISTS " + CardContract.CardEntry.TABLE_NAME;
 
+    public static final String SQL_QUERY_STRING_TEN =
+            "SELECT _id, name, description, date_created FROM card WHERE owner = ? AND name LIKE ? ORDER BY (CASE WHEN name = ? THEN 1 WHEN name LIKE ? THEN 2 ELSE 3 END),name LIMIT 10";
+
 
 }

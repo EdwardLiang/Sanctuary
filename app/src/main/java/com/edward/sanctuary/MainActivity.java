@@ -25,6 +25,9 @@ import com.edward.sanctuary.database.Database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     private String queryText;
     private boolean end;
     private double seed;
+    private Lock reloading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        reloading = new ReentrantLock();
 
         System.out.println("Welcome: " + Session.getInstance(this).getUsername());
 
@@ -144,31 +149,40 @@ public class MainActivity extends AppCompatActivity
 
                 final Runnable r = new Runnable() {
                     public void run() {
-                        pagesLoaded++;
-                        if(cards.size() > 0) {
-                            cards.remove(cards.size() - 1);
-                            ca.notifyItemRemoved(cards.size());
-                        }
+                        try {
+                            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                            if(cards.size() > 0 && cards.get(cards.size() - 1) == null) {
+                                cards.remove(cards.size() - 1);
+                                ca.notifyItemRemoved(cards.size());
+                            }
 
-                        //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
-                        if(querying){
-                            cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-                        }
-                        else{
-                            cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-                        }
+                            //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
+                            if(querying){
+                                pagesLoadedQuery++;
+                                cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                            }
+                            else{
+                                pagesLoaded++;
+                                cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                            }
 
-                        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
-                            Card card = new Card();
-                            card.setCard_name("No More Cards!");
-                            card.setCard_description("You've reached the end");
-                            card.setCard_id(-1);
-                            cards.add(card);
-                            end = true;
+                            if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+                                Card card = new Card();
+                                card.setCard_name("No More Cards!");
+                                card.setCard_description("You've reached the end");
+                                card.setCard_id(-1);
+                                cards.add(card);
+                                end = true;
+                            }
+                            ca.setCardList(cards);
+                            ca.notifyDataSetChanged();
+                            ca.setIsLoading(false);
+                            reloading.unlock();
+
+                        } catch (InterruptedException e) {
+                            System.out.println("Could not reload! Lock is bound!");
+                            e.printStackTrace();
                         }
-                        ca.setCardList(cards);
-                        ca.notifyDataSetChanged();
-                        ca.setIsLoading(false);
                     }
                 };
                 handler.postDelayed(r,1000);
@@ -203,21 +217,29 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.equals("")){
-                    end = false;
-                    querying = false;
-                    cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-                    ca.setCardList(cards);
-                    ca.notifyDataSetChanged();
-                }
-                else{
-                    end = false;
-                    querying = true;
-                    pagesLoadedQuery = 1;
-                    queryText = newText;
-                    cards = Database.getCardsSearch(MainActivity.this, newText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-                    ca.setCardList(cards);
-                    ca.notifyDataSetChanged();
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    if(newText.equals("")){
+                        end = false;
+                        querying = false;
+                        cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
+                    }
+                    else{
+                        end = false;
+                        querying = true;
+                        pagesLoadedQuery = 1;
+                        queryText = newText;
+                        cards = Database.getCardsSearch(MainActivity.this, newText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                        ca.setCardList(cards);
+                        ca.notifyDataSetChanged();
+                    }
+                    reloading.unlock();
+                    return false;
+                } catch (InterruptedException e) {
+                    System.out.println("Lock Bound! Cannot load based on query!");
+                    e.printStackTrace();
                 }
                 return false;
             }
@@ -312,9 +334,11 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 2301 && resultCode == 188){
             end = false;
-            this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-            ca.setCardList(cards);
-            ca.notifyDataSetChanged();
+            if(!querying) {
+                this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded * CARDS_PER_PAGE, seed);
+                ca.setCardList(cards);
+                ca.notifyDataSetChanged();
+            }
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
             snackbar.show();
         }
