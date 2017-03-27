@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.edward.sanctuary.database.Database;
 
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity
     private List<Card> cards;
     private CardAdapter ca;
     private int pagesLoaded;
+    private int pagesLoadedQuery;
+    private boolean querying;
+    private String queryText;
     private boolean end;
     private double seed;
 
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pagesLoaded = 1;
+        pagesLoadedQuery = 1;
         seed = Database.generateSeed();
         end = false;
         setTitle("Sanctuary");
@@ -110,6 +115,8 @@ public class MainActivity extends AppCompatActivity
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
         this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        //cards = Database.getCardsSearch(MainActivity.this, "N", Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+
         ca = new CardAdapter(cards);
         recList.setAdapter(ca);
         recList.setHasFixedSize(true);
@@ -138,11 +145,18 @@ public class MainActivity extends AppCompatActivity
                 final Runnable r = new Runnable() {
                     public void run() {
                         pagesLoaded++;
-                        cards.remove(cards.size() - 1);
-                        ca.notifyItemRemoved(cards.size());
+                        if(cards.size() > 0) {
+                            cards.remove(cards.size() - 1);
+                            ca.notifyItemRemoved(cards.size());
+                        }
 
                         //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
-                        cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                        if(querying){
+                            cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                        }
+                        else{
+                            cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                        }
 
                         if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
                             Card card = new Card();
@@ -180,7 +194,34 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        SearchView view = (SearchView)findViewById(R.id.search);
+        view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.equals("")){
+                    end = false;
+                    querying = false;
+                    cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                }
+                else{
+                    end = false;
+                    querying = true;
+                    pagesLoadedQuery = 1;
+                    queryText = newText;
+                    cards = Database.getCardsSearch(MainActivity.this, newText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                }
+                return false;
+            }
+        });
     }
 
     public void addDecks(List<Card> decks){

@@ -137,6 +137,46 @@ public class Database {
         return cards;
     }
 
+    public static List<Card> getCardsSearch(Context context, String term, long userId, int amount){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%" };
+        String sortOrder = "(CASE WHEN " + CardContract.CardEntry.NAME + " = '" + term + "' THEN 1 WHEN " +
+                CardContract.CardEntry.NAME + " LIKE '" + term + "%' THEN 2 ELSE 3 END)," + CardContract.CardEntry.NAME;
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+                String.valueOf(amount)
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
+
+
     public static boolean newCard(Context context, long userId, String name){
         // Gets the data repository in write mode
         List<Card> cards = new LinkedList<Card>();
