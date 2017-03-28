@@ -11,10 +11,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState){
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+            this.getSupportActionBar().hide();
+            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
         checkValues();
-        setupActionBar();
+        //setupActionBar();
         setTitle("Settings");
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 

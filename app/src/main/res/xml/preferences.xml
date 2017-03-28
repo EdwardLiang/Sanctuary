@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<!--
-    <CheckBoxPreference android:title="Application Updates"
-        android:defaultValue="false"
-        android:summary="This option if selected will allow the application to check for latest versions."
-        android:key="applicationUpdates" />
-        -->
+    <!--
+        <CheckBoxPreference android:title="Application Updates"
+            android:defaultValue="false"
+            android:summary="This option if selected will allow the application to check for latest versions."
+            android:key="applicationUpdates" />
+            -->
+    <PreferenceCategory
+        android:title="User interface">
+
+    <CheckBoxPreference
+        android:key="darkmode"
+        android:title="Dark Mode"
+        android:summary="Set user interface to use a dark theme"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory
         android:title="Security">
 

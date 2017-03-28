@@ -40,6 +40,8 @@ public class Database {
         values.put(UserContract.UserEntry.SALT, salt);
         values.put(UserContract.UserEntry.DATE_CREATED, persistDate(new Date()));
         values.put(UserContract.UserEntry.SECURITY_ENABLED, false);
+        values.put(UserContract.UserEntry.DARK_MODE, false);
+
 
         // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
@@ -136,6 +138,58 @@ public class Database {
         }
         return false;
     }
+    public static void setDarkMode(long userId, boolean securityEnabled, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        int value = securityEnabled ? 1 : 0;
+        values.put(UserContract.UserEntry.DARK_MODE, value);
+
+        // Which row to update, based on the title
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+
+        int count = db.update(
+                UserContract.UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+    public static boolean getDarkModeEnabled(long userId, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                UserContract.UserEntry._ID,
+                UserContract.UserEntry.DARK_MODE
+        };
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+        String sortOrder = UserContract.UserEntry._ID + " DESC";
+
+        Cursor cursor = db.query(
+                UserContract.UserEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        cursor.moveToNext();
+        long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(UserContract.UserEntry._ID));
+        int darkEnabled = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.DARK_MODE));
+        cursor.close();
+        if(darkEnabled != 0){
+            return true;
+        }
+        return false;
+    }
+
 
 
     public static void addCard(String name, String description, long userId,  Context context){

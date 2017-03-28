@@ -23,10 +23,19 @@ public class ManageCardsInDeck extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+        }
+
         card = (Card)getIntent().getSerializableExtra("Card");
         setContentView(R.layout.activity_manage_cards_in_deck);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if(Session.getInstance(this).darkModeSet()){
+            this.getSupportActionBar().hide();
+            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab3);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +71,7 @@ public class ManageCardsInDeck extends AppCompatActivity {
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.manageCardList);
         cards = createList(20);
-        final CardAdapter ca = new CardAdapter(cards);
+        final CardAdapter ca = new CardAdapter(cards, this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);

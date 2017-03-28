@@ -17,6 +17,8 @@ public final class UserContract {
         public static final String SALT = "salt";
         public static final String DATE_CREATED = "date_created";
         public static final String SECURITY_ENABLED = "security_enabled";
+        public static final String DARK_MODE = "dark_mode";
+
     }
 
 }

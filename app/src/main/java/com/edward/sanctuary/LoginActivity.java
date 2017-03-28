@@ -43,8 +43,37 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if(!Database.userExists(this)){
+            Database.addUser("default", "default", this);
+            sharedPrefs.edit().putString("username", "default");
+            sharedPrefs.edit().putString("password", "default");
+            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
+            Session.getInstance(this).setUserId(Database.getUserId(sharedPrefs.getString("username", "default"), this));
+            Session.getInstance(this).setDarkMode(false);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else {
+            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
+            long userId = Database.getUserId(sharedPrefs.getString("username", "default"), this);
+            Session.getInstance(this).setUserId(userId);
+            Session.getInstance(this).setDarkMode(Database.getDarkModeEnabled(userId, this));
+            if (!Database.getSecurityEnabled(userId, this)) {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+            this.getSupportActionBar().hide();
+        }
 
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
 
@@ -70,28 +99,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if(!Database.userExists(this)){
-            Database.addUser("default", "default", this);
-            sharedPrefs.edit().putString("username", "default");
-            sharedPrefs.edit().putString("password", "default");
-            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
-            Session.getInstance(this).setUserId(Database.getUserId(sharedPrefs.getString("username", "default"), this));
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else {
-            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
-            Session.getInstance(this).setUserId(Database.getUserId(sharedPrefs.getString("username", "default"), this));
-            System.out.println(Session.getInstance(this).getUsername());
-            System.out.println(Session.getInstance(this).getUserId());
-            if (!Database.getSecurityEnabled(Session.getInstance(this).getUserId(), this)) {
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }
 
     }
 

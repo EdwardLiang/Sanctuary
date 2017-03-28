@@ -19,6 +19,11 @@ public class ManageDecks extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+            this.getSupportActionBar().hide();
+            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         setContentView(R.layout.activity_manage_decks);
         setTitle("Manage Decks");
 

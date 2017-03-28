@@ -12,6 +12,7 @@ public final class SQLCommands {
                     UserContract.UserEntry.PASSWORD_HASH + " BLOB," +
                     UserContract.UserEntry.SALT + " BLOB," +
                     UserContract.UserEntry.SECURITY_ENABLED + " INTEGER," +
+                    UserContract.UserEntry.DARK_MODE + " INTEGER," +
                     UserContract.UserEntry.DATE_CREATED + " LONG)";
 
     public static final String SQL_CREATE_ENTRIES_CARD =

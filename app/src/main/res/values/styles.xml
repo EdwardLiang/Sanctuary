@@ -9,4 +9,8 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Night" parent="Theme.AppCompat.NoActionBar" />
+
+    <style name="Theme.Night.NoActionBar" parent="Theme.AppCompat.NoActionBar" />
+
 </resources>

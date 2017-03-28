@@ -1,5 +1,6 @@
 package com.edward.sanctuary;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
@@ -20,6 +21,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private SparseBooleanArray selectedItems;
     private List<Card> cardList;
+    private Context context;
 
     private final int VIEW_ITEM = 0;
     private final int VIEW_LOADING = 1;
@@ -27,7 +29,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnMoreLoadListener mOnLoadMoreListener;
 
 
-    public CardAdapter(List<Card> cardList){
+    public CardAdapter(List<Card> cardList, Context context){
+        this.context = context;
         this.cardList = cardList;
         selectedItems = new SparseBooleanArray();
         isLoading = false;
@@ -94,10 +97,20 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             cardViewHolder.vDescription.setText(ci.getCard_description());
             if (selectedItems.get(i, false)) {
                 cardViewHolder.itemView.setSelected(true);
-                cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+                if(Session.getInstance(context).darkModeSet()) {
+                    cardViewHolder.itemView.setBackgroundColor(Color.BLACK);
+                }
+                else{
+                    cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+                }
             } else {
                 cardViewHolder.itemView.setSelected(false);
-                cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+                if(Session.getInstance(context).darkModeSet()) {
+                    cardViewHolder.itemView.setBackgroundColor(context.getResources().getColor(R.color.cardview_dark_background));
+                }
+                else{
+                    cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+                }
             }
         }
         else{
@@ -161,12 +174,22 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         //-1 when the card is the "no more cards" card
                         if (v.isSelected()) {
                             System.out.println("unselected");
-                            v.setBackgroundColor(Color.WHITE);
+                            if(Session.getInstance(context).darkModeSet()) {
+                                v.setBackgroundColor(context.getResources().getColor(R.color.cardview_dark_background));
+                            }
+                            else{
+                                v.setBackgroundColor(Color.WHITE);
+                            }
                             toggleSelection(pos);
                             v.setSelected(false);
                         } else {
                             System.out.println("selected");
-                            v.setBackgroundColor(Color.LTGRAY);
+                            if(Session.getInstance(context).darkModeSet()) {
+                                v.setBackgroundColor(Color.BLACK);
+                            }
+                            else{
+                                v.setBackgroundColor(Color.LTGRAY);
+                            }
                             toggleSelection(pos);
                             v.setSelected(true);
                         }

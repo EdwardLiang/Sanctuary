@@ -86,13 +86,22 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             cardViewHolder.vName.setText(ci.getCard_name());
             cardViewHolder.vDescription.setText(ci.getCard_description());
 
-            if(selectedItems.get(i, false)){
+            if (selectedItems.get(i, false)) {
                 cardViewHolder.itemView.setSelected(true);
-                cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
-            }
-            else{
+                if(Session.getInstance(context).darkModeSet()) {
+                    cardViewHolder.itemView.setBackgroundColor(Color.BLACK);
+                }
+                else{
+                    cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+                }
+            } else {
                 cardViewHolder.itemView.setSelected(false);
-                cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+                if(Session.getInstance(context).darkModeSet()) {
+                    cardViewHolder.itemView.setBackgroundColor(context.getResources().getColor(R.color.cardview_dark_background));
+                }
+                else{
+                    cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
+                }
             }
             if(checkedItems.get(i, false)){
                 cardViewHolder.switch1.setChecked(true);

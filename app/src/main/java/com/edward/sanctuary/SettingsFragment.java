@@ -32,6 +32,15 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+        getPreferenceScreen().findPreference("darkmode").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Database.setDarkMode(Session.getInstance(getActivity()).getUserId(), (Boolean)newValue, getActivity());
+                Session.getInstance(getActivity()).setDarkMode((Boolean)newValue);
+                return true;
+            }
+        });
+
         getPreferenceScreen().findPreference("username").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {

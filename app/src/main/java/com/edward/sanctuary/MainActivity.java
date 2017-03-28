@@ -54,9 +54,15 @@ public class MainActivity extends AppCompatActivity
         seed = Database.generateSeed();
         end = false;
         setTitle("Sanctuary");
+        if(Session.getInstance(this).darkModeSet()){
+            this.getApplication().setTheme(R.style.Theme_Night_NoActionBar);
+            this.setTheme(R.style.Theme_Night_NoActionBar);
+            //toolbar.setPopupTheme(R.style.Night);
+        }
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         reloading = new ReentrantLock();
 
         System.out.println("Welcome: " + Session.getInstance(this).getUsername());
@@ -143,7 +149,7 @@ public class MainActivity extends AppCompatActivity
 
         //cards = Database.getCardsSearch(MainActivity.this, "N", Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
 
-        ca = new CardAdapter(cards);
+        ca = new CardAdapter(cards, this);
         recList.setAdapter(ca);
         recList.setHasFixedSize(true);
 

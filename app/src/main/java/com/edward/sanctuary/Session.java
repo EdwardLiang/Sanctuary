@@ -48,6 +48,13 @@ public class Session {
         return prefs.getBoolean("security", false);
     }
 
+    public void setDarkMode(boolean bool){
+        prefs.edit().putBoolean("darkmode", bool);
+    }
+    public boolean darkModeSet(){
+        return prefs.getBoolean("darkmode", false);
+    }
+
     public String getUsername(){
         return prefs.getString("username", "");
     }

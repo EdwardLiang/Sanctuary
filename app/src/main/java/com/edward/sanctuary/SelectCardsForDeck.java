@@ -35,9 +35,16 @@ public class SelectCardsForDeck extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         setContentView(R.layout.activity_select_cards_for_deck);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if(Session.getInstance(this).darkModeSet()){
+            this.getSupportActionBar().hide();
+        }
         final String prev = getIntent().getStringExtra("Intent");
 
         pagesLoaded = 1;
@@ -68,7 +75,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
         cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-        ca = new CardAdapter(cards);
+        ca = new CardAdapter(cards, this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);
