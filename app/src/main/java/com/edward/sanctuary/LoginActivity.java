@@ -220,12 +220,12 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            try {
+            /*try {
                 // Simulate network access.
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return false;
-            }
+            }*/
 
             /*for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");

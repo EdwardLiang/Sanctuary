@@ -9,6 +9,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private boolean end;
     private double seed;
     private Lock reloading;
+    private SwipeRefreshLayout swl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,7 +207,8 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 };
-                handler.postDelayed(r,1000);
+                //handler.postDelayed(r,1000);
+                handler.post(r);
             }
         });
 
@@ -242,8 +245,10 @@ public class MainActivity extends AppCompatActivity
                     if(newText.equals("")){
                         end = false;
                         querying = false;
+                        swl.setEnabled(true);
                     }
                     else{
+                        swl.setEnabled(false);
                         end = false;
                         querying = true;
                         pagesLoadedQuery = 1;
@@ -260,6 +265,25 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
                 return false;
+            }
+        });
+        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    pagesLoaded = 1;
+                    seed = Database.generateSeed();
+                    reloadCards();
+                    addNoMoreCard();
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                    swl.setRefreshing(false);
+                    reloading.unlock();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

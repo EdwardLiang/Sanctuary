@@ -22,12 +22,17 @@
             android:layout_marginTop="7dp">
 
         </SearchView>
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/cardForDeckList"
             android:layout_width="match_parent"
             android:paddingRight="8dp"
             android:layout_height="match_parent" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </LinearLayout>
 

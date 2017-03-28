@@ -2,6 +2,7 @@ package com.edward.sanctuary;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,6 +29,7 @@ public class SelectCardForDeck extends AppCompatActivity {
     private boolean querying;
     private String queryText;
     private Lock reloading;
+    private SwipeRefreshLayout swl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +89,11 @@ public class SelectCardForDeck extends AppCompatActivity {
                             //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
                             if(querying){
                                 pagesLoadedQuery++;
-                                cards = Database.getCardsSearch(SelectCardForDeck.this, queryText, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
                             }
                             else{
                                 pagesLoaded++;
-                                cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                             }
+                            reloadCards();
 
                             addNoMoreCard();
                             ca.setCardList(cards);
@@ -146,6 +147,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                         cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
+                        swl.setEnabled(true);
                     }
                     else{
                         end = false;
@@ -155,6 +157,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                         cards = Database.getCardsSearch(SelectCardForDeck.this, newText, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
+                        swl.setEnabled(false);
                     }
                     reloading.unlock();
                     return false;
@@ -166,6 +169,36 @@ public class SelectCardForDeck extends AppCompatActivity {
             }
         });
 
+        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    pagesLoaded = 1;
+                    seed = Database.generateSeed();
+                    reloadCards();
+                    addNoMoreCard();
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                    swl.setRefreshing(false);
+                    reloading.unlock();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+    }
+
+    public void reloadCards(){
+        if(querying){
+            cards = Database.getCardsSearch(SelectCardForDeck.this, queryText, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+        }
+        else{
+            cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        }
     }
 
     private void addNoMoreCard() {
