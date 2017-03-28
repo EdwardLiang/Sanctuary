@@ -5,9 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -28,16 +30,6 @@ import static com.edward.sanctuary.R.id.login;
 public class LoginActivity extends AppCompatActivity {
 
     /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "sulcata:asdfq"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
@@ -51,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
@@ -77,6 +70,29 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if(!Database.userExists(this)){
+            Database.addUser("default", "default", this);
+            sharedPrefs.edit().putString("username", "default");
+            sharedPrefs.edit().putString("password", "default");
+            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
+            Session.getInstance(this).setUserId(Database.getUserId(sharedPrefs.getString("username", "default"), this));
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else {
+            Session.getInstance(this).setUsername(sharedPrefs.getString("username", "default"));
+            Session.getInstance(this).setUserId(Database.getUserId(sharedPrefs.getString("username", "default"), this));
+            System.out.println(Session.getInstance(this).getUsername());
+            System.out.println(Session.getInstance(this).getUserId());
+            if (!Database.getSecurityEnabled(Session.getInstance(this).getUserId(), this)) {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+
     }
 
     /**

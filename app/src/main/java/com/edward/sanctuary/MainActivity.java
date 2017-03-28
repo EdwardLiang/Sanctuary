@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.edward.sanctuary.database.Database;
 
@@ -350,9 +351,14 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this,ManageDecks.class));
         }
         if (id == R.id.logout) {
-            startActivity(new Intent(this, LoginActivity.class));
-            Session.destroyInstance();
-            finish();
+            if(Database.getSecurityEnabled(Session.getInstance(this).getUserId(),this)) {
+                startActivity(new Intent(this, LoginActivity.class));
+                Session.destroyInstance();
+                finish();
+            }
+            else{
+                Toast.makeText(this, "Security not enabled", Toast.LENGTH_SHORT).show();
+            }
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -16,6 +16,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         checkValues();
         setupActionBar();
         setTitle("Settings");
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
     }
 
     private void checkValues()

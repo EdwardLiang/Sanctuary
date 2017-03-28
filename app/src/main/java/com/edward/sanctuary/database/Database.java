@@ -39,10 +39,104 @@ public class Database {
         values.put(UserContract.UserEntry.PASSWORD_HASH, hash);
         values.put(UserContract.UserEntry.SALT, salt);
         values.put(UserContract.UserEntry.DATE_CREATED, persistDate(new Date()));
+        values.put(UserContract.UserEntry.SECURITY_ENABLED, false);
 
         // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
     }
+
+    public static void changeUsername(long userId, String newName, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(UserContract.UserEntry.USERNAME, newName);
+
+// Which row to update, based on the title
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+
+        int count = db.update(
+                UserContract.UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+    public static void changePassword(long userId, String password, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        byte[] salt = PasswordUtils.getNextSalt();
+        byte[] hash = PasswordUtils.hash(password.toCharArray(), salt);
+
+        ContentValues values = new ContentValues();
+        values.put(UserContract.UserEntry.PASSWORD_HASH, hash);
+        values.put(UserContract.UserEntry.SALT, salt);
+
+        // Which row to update, based on the title
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+
+        int count = db.update(
+                UserContract.UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+    public static void setSecurity(long userId, boolean securityEnabled, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        int value = securityEnabled ? 1 : 0;
+        values.put(UserContract.UserEntry.SECURITY_ENABLED, value);
+
+        // Which row to update, based on the title
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+
+        int count = db.update(
+                UserContract.UserEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+    public static boolean getSecurityEnabled(long userId, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                UserContract.UserEntry._ID,
+                UserContract.UserEntry.SECURITY_ENABLED
+        };
+        String selection = UserContract.UserEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+        String sortOrder = UserContract.UserEntry._ID + " DESC";
+
+        Cursor cursor = db.query(
+                UserContract.UserEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        cursor.moveToNext();
+        long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(UserContract.UserEntry._ID));
+        int secEnabled = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.SECURITY_ENABLED));
+        cursor.close();
+        if(secEnabled != 0){
+            return true;
+        }
+        return false;
+    }
+
 
     public static void addCard(String name, String description, long userId,  Context context){
         // Gets the data repository in write mode
@@ -292,6 +386,7 @@ public class Database {
             cursor.close();
             return true;
         }
+        cursor.close();
         return false;
     }
 
@@ -319,13 +414,16 @@ public class Database {
 
         cursor.moveToNext();
         if(cursor.getCount() == 0){
+            cursor.close();
             return -1;
         }
         if(cursor.getCount() > 1){
+            cursor.close();
             System.out.println("Duplicate usernames in database!");
             return -1;
         }
         long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(UserContract.UserEntry._ID));
+        cursor.close();
         return itemId;
     }
 
@@ -372,6 +470,34 @@ public class Database {
         }
         return false;
     }
+    public static boolean userExists(Context context){
+        // Gets the data repository in write mode
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                UserContract.UserEntry._ID,
+        };
+
+        Cursor cursor = db.query(
+                UserContract.UserEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        cursor.moveToNext();
+        if(cursor.getCount() == 0){
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
+    }
+
 
     public static Long persistDate(Date date) {
         if (date != null) {

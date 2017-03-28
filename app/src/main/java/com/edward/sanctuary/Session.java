@@ -40,6 +40,14 @@ public class Session {
         return prefs.getLong("id", -1);
     }
 
+    public void setSecurity(boolean bool){
+        prefs.edit().putBoolean("enablesecurity", bool);
+    }
+
+    public boolean securitySet(){
+        return prefs.getBoolean("security", false);
+    }
+
     public String getUsername(){
         return prefs.getString("username", "");
     }
