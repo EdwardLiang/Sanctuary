@@ -43,6 +43,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
+    @Override
+    public void onBackPressed(){
+        NavUtils.navigateUpFromSameTask(this);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
