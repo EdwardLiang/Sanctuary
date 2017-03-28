@@ -235,8 +235,8 @@ public class LoginActivity extends AppCompatActivity {
             }
             else{
                 //Register new User
-                Database.addUser(username, mPassword, login);
-                return true;
+                //Database.addUser(username, mPassword, login);
+                return false;
             }
         }
 

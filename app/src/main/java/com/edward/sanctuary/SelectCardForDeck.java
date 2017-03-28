@@ -42,6 +42,7 @@ public class SelectCardForDeck extends AppCompatActivity {
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
         cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        addNoMoreCard();
         ca = new CardAdapterForDeck(cards, this);
         recList.setAdapter(ca);
 
@@ -88,14 +89,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                                 cards = Database.getRandomCards(SelectCardForDeck.this, Session.getInstance(SelectCardForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                             }
 
-                            if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
-                                Card card = new Card();
-                                card.setCard_name("No More Cards!");
-                                card.setCard_description("You've reached the end");
-                                card.setCard_id(-1);
-                                cards.add(card);
-                                end = true;
-                            }
+                            addNoMoreCard();
                             ca.setCardList(cards);
                             ca.notifyDataSetChanged();
                             ca.setIsLoading(false);
@@ -167,6 +161,17 @@ public class SelectCardForDeck extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void addNoMoreCard() {
+        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+            Card card = new Card();
+            card.setCard_name("No More Cards!");
+            card.setCard_description("You've reached the end");
+            card.setCard_id(-1);
+            cards.add(card);
+            end = true;
+        }
     }
 
     private void setupActionBar() {

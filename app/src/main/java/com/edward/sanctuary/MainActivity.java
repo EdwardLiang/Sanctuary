@@ -138,7 +138,9 @@ public class MainActivity extends AppCompatActivity
         //TEMPORARY: ADD decks for sidebar here
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
-        this.cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
+        reloadCards();
+        addNoMoreCard();
+
         //cards = Database.getCardsSearch(MainActivity.this, "N", Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
 
         ca = new CardAdapter(cards);
