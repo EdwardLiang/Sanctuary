@@ -202,7 +202,14 @@ public class SelectCardForDeck extends AppCompatActivity {
     }
 
     private void addNoMoreCard() {
-        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+        int val = 1;
+        if(querying){
+            val = pagesLoadedQuery;
+        }
+        else{
+            val = pagesLoaded;
+        }
+        if(cards.size() < val*CARDS_PER_PAGE){
             Card card = new Card();
             card.setCard_name("No More Cards!");
             card.setCard_description("You've reached the end");

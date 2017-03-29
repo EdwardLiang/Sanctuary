@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.edward.sanctuary.database.Database;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -38,6 +37,7 @@ public class MainActivity extends AppCompatActivity
 
     private NavigationView navigationView;
     private List<Card> cards;
+    private List<Card> drawerDecks;
     private CardAdapter ca;
     private int pagesLoaded;
     private int pagesLoadedQuery;
@@ -129,21 +129,9 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //TEMPORARY: ADD decks for sidebar here
-        List<Card> decks = new ArrayList<Card>();
-
-        Card card = new Card();
-        card.setCard_name("Deck 1");
-        Card card2 = new Card();
-        card2.setCard_name("Deck 2");
-        Card card3 = new Card();
-        card3.setCard_name("Deck 3");
-        decks.add(card);
-        decks.add(card2);
-        decks.add(card3);
-
-        addDecks(decks);
-        //TEMPORARY: ADD decks for sidebar here
+        //Add decks to drawer
+        drawerDecks = Database.getDrawerDecks(this, Session.getInstance(this).getUserId());
+        addDecks(drawerDecks);
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
         reloadCards();
@@ -277,6 +265,7 @@ public class MainActivity extends AppCompatActivity
                     seed = Database.generateSeed();
                     reloadCards();
                     addNoMoreCard();
+                    ca.clearSelected();
                     ca.setCardList(cards);
                     ca.notifyDataSetChanged();
                     swl.setRefreshing(false);
@@ -298,7 +287,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void addNoMoreCard(){
-        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+        int val = 1;
+        if(querying){
+            val = pagesLoadedQuery;
+        }
+        else{
+            val = pagesLoaded;
+        }
+        if(cards.size() < val*CARDS_PER_PAGE){
             Card card = new Card();
             card.setCard_name("No More Cards!");
             card.setCard_description("You've reached the end");
@@ -310,6 +306,7 @@ public class MainActivity extends AppCompatActivity
 
     public void addDecks(List<Card> decks){
         SubMenu sm = navigationView.getMenu().findItem(R.id.decks).getSubMenu();
+        sm.clear();
         for(Card entry : decks) {
             final Card card = entry;
             sm.add(Menu.NONE, 1, Menu.NONE, card.getCard_name()).setIcon(R.drawable.ic_library_books_black_24dp).setOnMenuItemClickListener(
@@ -329,7 +326,6 @@ public class MainActivity extends AppCompatActivity
                     }//.init(entry)
             );
         }
-
     }
 
 
@@ -380,7 +376,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this,SelectCardForDeck.class));
         }
         if (id == R.id.nav_manage_decks) {
-            startActivity(new Intent(this,ManageDecks.class));
+            Intent intent = new Intent(this,ManageDecks.class);
+            startActivityForResult(intent, 211);
         }
         if (id == R.id.logout) {
             if(Database.getSecurityEnabled(Session.getInstance(this).getUserId(),this)) {
@@ -409,5 +406,10 @@ public class MainActivity extends AppCompatActivity
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
             snackbar.show();
         }
+        if(requestCode == 211 && resultCode == 197){
+            drawerDecks = Database.getDrawerDecks(this, Session.getInstance(this).getUserId());
+            addDecks(drawerDecks);
+        }
+
     }
 }

@@ -11,17 +11,22 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  * Created by edward on 3/19/17.
  */
 
-public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SelectCardsForDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private SparseBooleanArray selectedItems;
     private List<Card> cardList;
+    private HashMap<String, Card> alreadyInDeck;
     private Context context;
+    private HashSet<Card> newlyUnselected;
+    private boolean changed;
 
     private final int VIEW_ITEM = 0;
     private final int VIEW_LOADING = 1;
@@ -29,9 +34,12 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnMoreLoadListener mOnLoadMoreListener;
 
 
-    public CardAdapter(List<Card> cardList, Context context){
+    public SelectCardsForDeckAdapter(HashMap<String, Card> inDeck, List<Card> cardList, Context context){
+        alreadyInDeck = inDeck;
         this.context = context;
         this.cardList = cardList;
+        this.newlyUnselected = new HashSet<Card>();
+        changed = false;
         selectedItems = new SparseBooleanArray();
         isLoading = false;
     }
@@ -43,9 +51,14 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         return cL;
     }
+    public HashSet<Card> getNewlyUnselected(){
+        return newlyUnselected;
+    }
+    public boolean getChanged(){
+        return changed;
+    }
     public void clearSelected(){
         selectedItems.clear();
-
     }
 
     public void setCardList(List<Card> cards){
@@ -92,10 +105,15 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         if(viewHolder instanceof CardViewHolder) {
+            System.out.println("Bound viewHolder for " + cardList.get(i).getCard_name());
             CardViewHolder cardViewHolder = (CardViewHolder)viewHolder;
             Card ci = cardList.get(i);
             cardViewHolder.vName.setText(ci.getCard_name());
             cardViewHolder.vDescription.setText(ci.getCard_description());
+            if(alreadyInDeck.containsKey(ci.getCard_name())){
+                selectedItems.put(i, true);
+                System.out.println(ci.getCard_name() + " item pre-selected");
+            }
             if (selectedItems.get(i, false)) {
                 cardViewHolder.itemView.setSelected(true);
                 if(Session.getInstance(context).darkModeSet()) {
@@ -123,11 +141,33 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         if (i == VIEW_ITEM) {
+            //System.out.println("created viewHolder for " + cardList.get(i).getCard_name());
             View itemView = LayoutInflater.
                     from(viewGroup.getContext()).
                     inflate(R.layout.card, viewGroup, false);
             itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
             CardViewHolder cH = new CardViewHolder(itemView);
+            /*if(alreadyInDeck.contains(cardList.get(i))){
+                selectedItems.put(i, true);
+                System.out.println(cardList.get(i).getCard_name() + " item pre-selected");
+            }
+            if (selectedItems.get(i, false)) {
+                cH.itemView.setSelected(true);
+                if(Session.getInstance(context).darkModeSet()) {
+                    cH.itemView.setBackgroundColor(Color.BLACK);
+                }
+                else{
+                    cH.itemView.setBackgroundColor(Color.LTGRAY);
+                }
+            } else {
+                cH.itemView.setSelected(false);
+                if(Session.getInstance(context).darkModeSet()) {
+                    cH.itemView.setBackgroundColor(context.getResources().getColor(R.color.cardview_dark_background));
+                }
+                else{
+                    cH.itemView.setBackgroundColor(Color.WHITE);
+                }
+            }*/
             return cH;
 
         } else if (i == VIEW_LOADING) {
@@ -172,6 +212,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onClick(View v){
                     int pos = getAdapterPosition();
                     if(cardList.get(pos).getCard_id() != -1) {
+                        changed = true;
                         //-1 when the card is the "no more cards" card
                         if (v.isSelected()) {
                             System.out.println("unselected");
@@ -181,10 +222,19 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             else{
                                 v.setBackgroundColor(Color.WHITE);
                             }
+                            newlyUnselected.add(cardList.get(pos));
+                            if(alreadyInDeck.containsKey(cardList.get(pos).getCard_name())){
+                                //System.out.println(cardList.get(pos).getCard_name() + "Added to unselected.");
+                                alreadyInDeck.remove(cardList.get(pos).getCard_name());
+                            }
                             toggleSelection(pos);
                             v.setSelected(false);
                         } else {
                             System.out.println("selected");
+                            if(newlyUnselected.contains(cardList.get(pos))){
+                                newlyUnselected.remove(cardList.get(pos));
+                               // System.out.println(cardList.get(pos).getCard_name() + "Removed from unselected.");
+                            }
                             if(Session.getInstance(context).darkModeSet()) {
                                 v.setBackgroundColor(Color.BLACK);
                             }

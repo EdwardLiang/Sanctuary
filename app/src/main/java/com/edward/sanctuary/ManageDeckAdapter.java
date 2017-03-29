@@ -12,6 +12,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.edward.sanctuary.database.Database;
+
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,19 +26,30 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private SparseBooleanArray selectedItems;
     private SparseBooleanArray checkedItems;
     private List<Card> cardList;
+    private HashMap<String, Card> inDrawer;
     private Context context;
 
     private final int VIEW_ITEM = 0;
     private final int VIEW_LOADING = 1;
     private boolean isLoading;
     private OnMoreLoadListener mOnLoadMoreListener;
+    private boolean changed;
 
     public ManageDeckAdapter(List<Card> cardList, Context context){
         this.cardList = cardList;
+        inDrawer = Database.getDrawerDecksMap(context, Session.getInstance(context).getUserId());
         selectedItems = new SparseBooleanArray();
         checkedItems = new SparseBooleanArray();
         this.context = context;
         isLoading = false;
+        changed = false;
+    }
+
+    public void setCardList(List<Card> cards){
+        cardList = cards;
+    }
+    public void clearSelected(){
+        selectedItems.clear();
     }
 
     public void setOnMoreLoadListener(OnMoreLoadListener m){
@@ -103,6 +117,11 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
                 }
             }
+
+            if(inDrawer.containsKey(ci.getCard_name())){
+                checkedItems.put(i, true);
+            }
+
             if(checkedItems.get(i, false)){
                 cardViewHolder.switch1.setChecked(true);
             }
@@ -160,6 +179,9 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 @Override
                 public void onClick(View v){
                     int pos = getAdapterPosition();
+                    if(cardList.get(pos).getCard_id() == -1){
+                        return;
+                    }
                     Intent intent = new Intent(context, ManageCardsInDeck.class);
                     intent.putExtra("Card", cardList.get(pos));
                     context.startActivity(intent);
@@ -170,11 +192,22 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     System.out.println("switched");
                     int pos = getAdapterPosition();
+                    if(cardList.get(pos).getCard_id() == -1){
+                        switch1.setChecked(false);
+                        return;
+                    }
                     if(isChecked) {
                         checkedItems.put(pos, true);
+                        Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), true, context);
+                        changed = true;
                     }
                     else{
                         if(checkedItems.get(pos, false)){
+                            if(inDrawer.containsKey(cardList.get(pos).getCard_name())){
+                                inDrawer.remove(cardList.get(pos).getCard_name());
+                                Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), false, context);
+                                changed = true;
+                            }
                             checkedItems.delete(pos);
                         }
                     }

@@ -1,19 +1,25 @@
 package com.edward.sanctuary;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 
 import com.edward.sanctuary.database.Database;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -23,7 +29,8 @@ public class SelectCardsForDeck extends AppCompatActivity {
 
     private final int CARDS_PER_PAGE = 10;
     private List<Card> cards;
-    private CardAdapter ca;
+    private Card card;
+    private SelectCardsForDeckAdapter ca;
     private int pagesLoaded;
     private boolean end;
     private double seed;
@@ -31,8 +38,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
     private boolean querying;
     private String queryText;
     private Lock reloading;
-    private SwipeRefreshLayout swl;
-
+    //private SwipeRefreshLayout swl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,28 +62,51 @@ public class SelectCardsForDeck extends AppCompatActivity {
         querying = false;
         reloading = new ReentrantLock();
 
+        card = (Card)getIntent().getSerializableExtra("Card");
+        setTitle("Select For: " + card.getCard_name());
+
+        HashMap<String, Card> inDeck = Database.getCardsInDeck(this, Session.getInstance(this).getUserId(), card);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("TODO: Cards in deck updated");
+                System.out.println("Cards in deck updated");
+                HashSet<Card> unselected = ca.getNewlyUnselected();
+                for(Card b: unselected){
+                    Database.deleteCardFromDeck(SelectCardsForDeck.this, card, b);
+                }
+                List<Card> selected = ca.getSelected();
+                ca.clearSelected();
+                for(Card a: selected){
+                    Database.addCardToDeck(card.getCard_id(), a.getCard_id(), Session.getInstance(SelectCardsForDeck.this).getUserId(), SelectCardsForDeck.this);
+                }
+                if(Database.getCardsInDeck(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), card).size() == 0){
+                    Database.setIsDeck(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), false, SelectCardsForDeck.this);
+                    Database.setInDrawer(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), false, SelectCardsForDeck.this);
+                    System.out.println(card.getCard_name() + " set as not deck and not in drawer");
+                }
+                else {
+                    Database.setIsDeck(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), true, SelectCardsForDeck.this);
+                    System.out.println(card.getCard_name() + " set as deck");
+                }
                 if(prev != null && prev.equals("AddDeck")){
                     Intent intent = new Intent(SelectCardsForDeck.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
+                Intent intent = getIntent();
+                setResult(876);
+
                 finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Card card = (Card)getIntent().getSerializableExtra("Card");
-        setTitle("Select For: " + card.getCard_name());
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.cardForDeckList);
         cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-        ca = new CardAdapter(cards, this);
+        ca = new SelectCardsForDeckAdapter(inDeck, cards, this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);
@@ -170,7 +199,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                         cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
-                        swl.setEnabled(true);
+                        //swl.setEnabled(true);
                     }
                     else{
                         end = false;
@@ -180,7 +209,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                         cards = Database.getCardsSearch(SelectCardsForDeck.this, newText, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
-                        swl.setEnabled(false);
+                        //swl.setEnabled(false);
                     }
                     reloading.unlock();
                     return false;
@@ -191,7 +220,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                 return false;
             }
         });
-        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+       /* swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
         swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -209,7 +238,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
 
 
     }
@@ -224,7 +253,14 @@ public class SelectCardsForDeck extends AppCompatActivity {
     }
 
     public void addNoMoreCard() {
-        if(cards.size() < pagesLoaded*CARDS_PER_PAGE){
+        int val = 1;
+        if(querying){
+            val = pagesLoadedQuery;
+        }
+        else{
+            val = pagesLoaded;
+        }
+        if(cards.size() < val*CARDS_PER_PAGE){
             Card card = new Card();
             card.setCard_name("No More Cards!");
             card.setCard_description("You've reached the end");
@@ -234,5 +270,79 @@ public class SelectCardsForDeck extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                confirmChangesDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    public void confirmChangesDialog(){
+        if(ca.getChanged()){
+            Context con = this;
+            if(Session.getInstance(this).darkModeSet()) {
+                con = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Dialog_Alert);
+            }
+            new AlertDialog.Builder(con)
+                    .setTitle("Save Changes")
+                    .setMessage("Do you want to save your changes to the deck?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                                HashSet<Card> unselected = ca.getNewlyUnselected();
+                                for(Card b: unselected){
+                                    Database.deleteCardFromDeck(SelectCardsForDeck.this, card, b);
+                                }
+                                List<Card> selected = ca.getSelected();
+                                ca.clearSelected();
+                                for(Card a: selected){
+                                    Database.addCardToDeck(card.getCard_id(), a.getCard_id(), Session.getInstance(SelectCardsForDeck.this).getUserId(), SelectCardsForDeck.this);
+                                    System.out.println(card.getCard_name() + " set as not deck and not in drawer");
+                                }
+                                if(Database.getCardsInDeck(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), card).size() == 0){
+                                    Database.setIsDeck(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), false, SelectCardsForDeck.this);
+                                    Database.setInDrawer(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), false, SelectCardsForDeck.this);
+                                }
+                                else {
+                                    Database.setIsDeck(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), true, SelectCardsForDeck.this);
+                                    System.out.println(card.getCard_name() + " set as deck");
+                                }
+                                reloading.unlock();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Intent intent = getIntent();
+                            setResult(876);
+
+                            finish();
+                        }
+
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener(){
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = getIntent();
+                            setResult(876);
+                            finish();
+                        }
+                    })
+                    .show();
+        }
+        else{
+            finish();
+        }
+
+    }
+
+    public void onBackPressed(){
+        confirmChangesDialog();
+    }
 }

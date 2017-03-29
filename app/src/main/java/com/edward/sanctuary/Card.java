@@ -61,5 +61,12 @@ public class Card implements Serializable{
 
         return result;
     }
+    public boolean equals(Object card){
+        Card c = (Card)card;
+        if(this.getCard_id() == c.getCard_id()){
+            return true;
+        }
+        return false;
+    }
 
 }

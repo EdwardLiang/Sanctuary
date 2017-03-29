@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 8;
+    public static final int DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "Sanctuary.db";
     private static DBHelper instance;
 
@@ -30,13 +30,26 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_USER);
         db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD);
+        db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD_CARD);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_USER);
-        db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_CARD);
-        db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_USER);
-        db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD);
+        if(oldVersion == 8){
+            db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD_CARD);
+        }
+        else if(oldVersion == 9){
+            db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_CARD_CARD);
+            db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD_CARD);
+            System.out.println("DB Update executed");
+        }
+        else {
+            db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_USER);
+            db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_CARD);
+            db.execSQL(SQLCommands.SQL_DELETE_ENTRIES_CARD_CARD);
+            db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_USER);
+            db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD);
+            db.execSQL(SQLCommands.SQL_CREATE_ENTRIES_CARD_CARD);
+        }
     }
 }

@@ -26,6 +26,21 @@ public final class SQLCommands {
                     CardContract.CardEntry.DATE_CREATED + " LONG, " +
                     "FOREIGN KEY (" + CardContract.CardEntry.OWNER + ") REFERENCES " +
                     UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + "))";
+    public static final String SQL_CREATE_ENTRIES_CARD_CARD =
+            "CREATE TABLE " + CardCardContract.CardCardEntry.TABLE_NAME + " (" +
+                    CardCardContract.CardCardEntry.CARD1 + " INTEGER," +
+                    CardCardContract.CardCardEntry.CARD2 + " INTEGER," +
+                    CardCardContract.CardCardEntry.OWNER + " INTEGER," +
+                    CardCardContract.CardCardEntry.DATE_CREATED + " LONG, " +
+                    "FOREIGN KEY (" + CardCardContract.CardCardEntry.OWNER + ") REFERENCES " +
+                    UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + ")," +
+                    "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD1 + ") REFERENCES " +
+                    CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                    "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD2 + ") REFERENCES " +
+                    CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                    "PRIMARY KEY(" + CardCardContract.CardCardEntry.CARD1 + ", " +
+                    CardCardContract.CardCardEntry.CARD2 + "))";
+
 
     public static final String SQL_DELETE_ENTRIES_USER =
             "DROP TABLE IF EXISTS " + UserContract.UserEntry.TABLE_NAME;
@@ -33,8 +48,25 @@ public final class SQLCommands {
     public static final String SQL_DELETE_ENTRIES_CARD =
             "DROP TABLE IF EXISTS " + CardContract.CardEntry.TABLE_NAME;
 
-    public static final String SQL_QUERY_STRING_TEN =
-            "SELECT _id, name, description, date_created FROM card WHERE owner = ? AND name LIKE ? ORDER BY (CASE WHEN name = ? THEN 1 WHEN name LIKE ? THEN 2 ELSE 3 END),name LIMIT 10";
+    public static final String SQL_DELETE_ENTRIES_CARD_CARD =
+            "DROP TABLE IF EXISTS " + CardCardContract.CardCardEntry.TABLE_NAME;
+
+    public static final String SQL_QUERY_STRING =
+            "SELECT _id, name, description, date_created FROM card WHERE owner = ? AND name LIKE ? ORDER BY (CASE WHEN name = ? THEN 1 WHEN name LIKE ? THEN 2 ELSE 3 END),name LIMIT ?";
+
+    public static final String SQL_QUERY_STRING_DECKS =
+            "SELECT _id, name, description, date_created FROM card WHERE owner = ? AND is_deck = 1 AND name LIKE ? ORDER BY (CASE WHEN name = ? THEN 1 WHEN name LIKE ? THEN 2 ELSE 3 END),name LIMIT ?";
+
+    public static final String SQL_CARDS_IN_DECK =
+            "SELECT c._id, c.name, c.description, c.date_created FROM " +
+                    CardCardContract.CardCardEntry.TABLE_NAME + " deck INNER JOIN " + CardContract.CardEntry.TABLE_NAME +
+                    " c ON deck.card2 = c._id WHERE deck.owner = ? AND deck.card1 = ?";
+
+    public static final String SQL_CARDS_IN_DECK_RANDOM =
+            "SELECT c._id, c.name, c.description, c.date_created FROM " +
+                    CardCardContract.CardCardEntry.TABLE_NAME + " deck INNER JOIN " + CardContract.CardEntry.TABLE_NAME +
+                    " c ON deck.card2 = c._id WHERE deck.owner = ? AND deck.card1 = ? ORDER BY " + "(substr(c._id * ";
+    public static final String SQL_CARD_IN_DECK_RANDOM_2 = ", length(c._id) + 2)) LIMIT ?";
 
 
 }

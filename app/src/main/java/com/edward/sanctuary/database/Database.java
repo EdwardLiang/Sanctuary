@@ -8,8 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.edward.sanctuary.Card;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -39,8 +41,8 @@ public class Database {
         values.put(UserContract.UserEntry.PASSWORD_HASH, hash);
         values.put(UserContract.UserEntry.SALT, salt);
         values.put(UserContract.UserEntry.DATE_CREATED, persistDate(new Date()));
-        values.put(UserContract.UserEntry.SECURITY_ENABLED, false);
-        values.put(UserContract.UserEntry.DARK_MODE, false);
+        values.put(UserContract.UserEntry.SECURITY_ENABLED, 0);
+        values.put(UserContract.UserEntry.DARK_MODE, 0);
 
 
         // Insert the new row, returning the primary key value of the new row
@@ -210,6 +212,67 @@ public class Database {
         long newRowId = db.insert(CardContract.CardEntry.TABLE_NAME, null, values);
     }
 
+    public static void addCardToDeck(long deck, long card, long userId, Context context){
+        // Gets the data repository in write mode
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(CardCardContract.CardCardEntry.CARD1, deck);
+        values.put(CardCardContract.CardCardEntry.CARD2, card);
+        values.put(CardCardContract.CardCardEntry.OWNER, userId);
+        values.put(CardCardContract.CardCardEntry.DATE_CREATED, persistDate(new Date()));
+
+        // Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insertWithOnConflict(CardCardContract.CardCardEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    public static void setIsDeck(Card c, long userId, boolean bool, Context context){
+        long card = c.getCard_id();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        int val = bool ? 1 : 0;
+        System.out.println(val);
+        values.put(CardContract.CardEntry.IS_DECK, val);
+
+        // Which row to update, based on the title
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " +
+        CardContract.CardEntry._ID + " = ?";
+        System.out.println("User ID: " + userId);
+        System.out.println("Card: " + card);
+        String[] selectionArgs = { String.valueOf(userId), String.valueOf(card) };
+
+        int count = db.update(
+                CardContract.CardEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+        System.out.println("Count changed" + count);
+    }
+    public static void setInDrawer(Card c, long userId, boolean bool, Context context){
+        long card = c.getCard_id();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        int val = bool ? 1 : 0;
+        values.put(CardContract.CardEntry.IN_DRAWER, val);
+
+        // Which row to update, based on the title
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " +
+                CardContract.CardEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId), String.valueOf(card) };
+
+        int count = db.update(
+                CardContract.CardEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+
+
+
     public static List<Card> getCards(Context context, long userId){
         // Gets the data repository in write mode
         List<Card> cards = new LinkedList<Card>();
@@ -246,6 +309,51 @@ public class Database {
         }
         return cards;
     }
+    public static HashMap<String, Card> getCardsInDeck(Context context, long userId, Card card){
+        // Gets the data repository in write mode
+        HashMap<String, Card> cards = new HashMap<String, Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] selectionArgs = { String.valueOf(userId), String.valueOf(card.getCard_id()) };
+
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_CARDS_IN_DECK, selectionArgs);
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card c = new Card(name, desc, date, itemId);
+            System.out.println(c.getCard_name() + " added to hashset");
+            cards.put(c.getCard_name(), c);
+        }
+        return cards;
+    }
+    public static List<Card> getCardsInDeckByRandom(Context context, long userId, Card card, int amount, double seed){
+        // Gets the data repository in write mode
+        List<Card> cards = new ArrayList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] selectionArgs = { String.valueOf(userId), String.valueOf(card.getCard_id()), String.valueOf(amount) };
+
+        String q = SQLCommands.SQL_CARDS_IN_DECK_RANDOM + seed + SQLCommands.SQL_CARD_IN_DECK_RANDOM_2;
+
+        Cursor cursor = db.rawQuery(q, selectionArgs);
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card c = new Card(name, desc, date, itemId);
+            cards.add(c);
+        }
+        return cards;
+    }
+
+
 
     public static List<Card> getCards(Context context, long userId, int amount){
         // Gets the data repository in write mode
@@ -285,6 +393,126 @@ public class Database {
         return cards;
     }
 
+    public static List<Card> getRandomDecks(Context context, long userId, int amount, double seed){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED,
+                CardContract.CardEntry.IS_DECK
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.IS_DECK + " = 1";
+        //String selection = CardContract.CardEntry.OWNER + " = ?";
+
+        String[] selectionArgs = { Long.toString(userId) };
+        String sortOrder = "(substr("+ CardContract.CardEntry._ID +" * " + seed + ", length("+ CardContract.CardEntry._ID + ") + 2))";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+                String.valueOf(amount)
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            System.out.println(card.getCard_name());
+            cards.add(card);
+        }
+        return cards;
+    }
+
+    public static List<Card> getDrawerDecks(Context context, long userId){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.IS_DECK + " = 1 AND "
+                + CardContract.CardEntry.IN_DRAWER + " = 1";
+        String[] selectionArgs = { Long.toString(userId) };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
+    public static HashMap<String, Card> getDrawerDecksMap(Context context, long userId){
+        // Gets the data repository in write mode
+        HashMap<String, Card> cards = new HashMap<String, Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.IS_DECK + " = 1 AND "
+                + CardContract.CardEntry.IN_DRAWER + " = 1";
+        String[] selectionArgs = { Long.toString(userId) };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.put(card.getCard_name(), card);
+        }
+        return cards;
+    }
+
+
+
+
     public static List<Card> getCardsSearch(Context context, String term, long userId, int amount){
         // Gets the data repository in write mode
         List<Card> cards = new LinkedList<Card>();
@@ -312,9 +540,9 @@ public class Database {
                 sortOrder,
                 String.valueOf(amount)
         );*/
-        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%" };
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
-        Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING_TEN, selectionArgs);
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING, selectionArgs);
 
         while(cursor.moveToNext()) {
             long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
@@ -326,6 +554,48 @@ public class Database {
         }
         return cards;
     }
+    public static List<Card> getDecksSearch(Context context, String term, long userId, int amount){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        /*String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%" };
+        String sortOrder = "(CASE WHEN " + CardContract.CardEntry.NAME + " = '" + term + "' THEN 1 WHEN " +
+                CardContract.CardEntry.NAME + " LIKE '" + term + "%' THEN 2 ELSE 3 END)," + CardContract.CardEntry.NAME;
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder,
+                String.valueOf(amount)
+        );*/
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
+
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING_DECKS, selectionArgs);
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
+
 
 
     public static boolean newCard(Context context, long userId, String name){
@@ -372,6 +642,20 @@ public class Database {
         db.delete(CardContract.CardEntry.TABLE_NAME, selection, selectionArgs);
 
     }
+    public static void deleteCardFromDeck(Context context, Card deck, Card card){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Define 'where' part of query.
+        String selection = CardCardContract.CardCardEntry.CARD1 + " = ? AND " +
+                CardCardContract.CardCardEntry.CARD2 + " = ?";
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = { String.valueOf(deck.getCard_id()), String.valueOf(card.getCard_id()) };
+        // Issue SQL statement.
+        db.delete(CardCardContract.CardCardEntry.TABLE_NAME, selection, selectionArgs);
+
+    }
+
 
 
     public static List<Card> getRandomCards(Context context, long userId, int amount, double seed){
