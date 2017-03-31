@@ -29,7 +29,8 @@
         <EditTextPreference android:title="Password"
             android:key="password"
             android:summary="Please set your password"
-            android:inputType="textPassword"></EditTextPreference>
+            android:inputType="textPassword"
+            android:persistent="false"></EditTextPreference>
 
 
     </PreferenceCategory>

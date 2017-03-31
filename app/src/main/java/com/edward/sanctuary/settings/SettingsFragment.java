@@ -65,7 +65,8 @@ public class SettingsFragment extends PreferenceFragment {
                     Toast.makeText(getActivity(), "Password must be >4 chars!", Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                Database.changePassword(Session.getInstance(getActivity()).getUserId(), newValue.toString(), getActivity());
+
+                        Database.changePassword(Session.getInstance(getActivity()).getUserId(), newValue.toString(), getActivity());
                 Toast.makeText(getActivity(), "Password changed!", Toast.LENGTH_SHORT).show();
                 return true;
             }
