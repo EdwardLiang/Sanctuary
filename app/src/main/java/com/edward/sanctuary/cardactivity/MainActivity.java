@@ -1,4 +1,4 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardactivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,40 +8,49 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.edward.sanctuary.AddCard;
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.LoginActivity;
+import com.edward.sanctuary.R;
+import com.edward.sanctuary.cardadapter.CardAdapterSelect;
 import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
+import com.edward.sanctuary.settings.SettingsActivity;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends CardActivity
+public class MainActivity extends CardActivitySelect
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private NavigationView navigationView;
     private List<Card> drawerDecks;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTitle("Sanctuary");
+    protected void doSetContentView(){
+        setContentView(R.layout.activity_main);
+    }
+    @Override
+    protected void darkModeSetup(){
         if(Session.getInstance(this).darkModeSet()){
             this.getApplication().setTheme(R.style.Theme_Night_NoActionBar);
             this.setTheme(R.style.Theme_Night_NoActionBar);
-            this.getActionBar().hide();
             //toolbar.setPopupTheme(R.style.Night);
         }
-        setContentView(R.layout.activity_main);
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTitle("Sanctuary");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -68,7 +77,7 @@ public class MainActivity extends CardActivity
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                                    List<Card> toDelete = ca.getSelected();
+                                    List<Card> toDelete = ((CardAdapterSelect)ca).getSelected();
                                     int count = 0;
                                     for(Card a : toDelete){
                                         Database.deleteCard(MainActivity.this, a);
@@ -76,9 +85,9 @@ public class MainActivity extends CardActivity
                                     }
                                     reloadCards();
                                     addNoMoreCard();
-                                    ca.clearSelected();
-                                    ca.setCardList(cards);
-                                    ca.notifyDataSetChanged();
+                                    getCardAdapterSelect().clearSelected();
+                                    getCardAdapterSelect().setCardList(cards);
+                                    getCardAdapterSelect().notifyDataSetChanged();
                                     Snackbar snackbar = Snackbar.make(navigationView, count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
                                     snackbar.show();
                                     reloadDecks();
@@ -107,24 +116,6 @@ public class MainActivity extends CardActivity
         //Add decks to drawer
         drawerDecks = Database.getDrawerDecks(this, Session.getInstance(this).getUserId());
         addDecks(drawerDecks);
-
-        RecyclerView recList = (RecyclerView) findViewById(R.id.cardList);
-        reloadCards();
-        addNoMoreCard();
-
-        ca = new CardAdapterSelect(cards, this);
-        recList.setAdapter(ca);
-        recList.setHasFixedSize(true);
-        recList.setLayoutManager(llm);
-
-        ca.setOnMoreLoadListener(new InfiniteLoadListener());
-        recList.addOnScrollListener(new InfiniteScrollListener());
-
-        SearchView view = (SearchView)findViewById(R.id.search);
-        view.setOnQueryTextListener(new QueryCards());
-
-        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
-        swl.setOnRefreshListener(new CardRefresh());
     }
 
     public void addDecks(List<Card> decks){
@@ -139,7 +130,7 @@ public class MainActivity extends CardActivity
                             System.out.println("Deck clicked");
                             Intent intent = new Intent(MainActivity.this, ManageCardsInDeck.class);
                             intent.putExtra("Card", card);
-                            startActivity(intent);
+                            startActivityForResult(intent, 130);
                             return false;
                         }
                         //public MenuItem.OnMenuItemClickListener init(Card card){
@@ -227,13 +218,13 @@ public class MainActivity extends CardActivity
             end = false;
             reloadCards();
             addNoMoreCard();
-            ca.setCardList(cards);
-            ca.notifyDataSetChanged();
+            getCardAdapterSelect().setCardList(cards);
+            getCardAdapterSelect().notifyDataSetChanged();
 
             Snackbar snackbar = Snackbar.make(navigationView, "Card Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
             snackbar.show();
         }
-        if(requestCode == 211 && resultCode == 197){
+        if(resultCode == 197){
             reloadDecks();
         }
 

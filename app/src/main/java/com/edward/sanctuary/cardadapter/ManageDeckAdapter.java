@@ -1,5 +1,6 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardadapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +11,11 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.R;
+import com.edward.sanctuary.cardactivity.ManageCardsInDeck;
 import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
 
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +76,7 @@ public class ManageDeckAdapter extends CardAdapterSelect {
         public void onClickNotSelect(int pos){
             Intent intent = new Intent(context, ManageCardsInDeck.class);
             intent.putExtra("Card", cardList.get(pos));
-            context.startActivity(intent);
+            ((Activity)context).startActivityForResult(intent, 100);
         }
 
         public CardViewHolderManageDeck(View itemView) {

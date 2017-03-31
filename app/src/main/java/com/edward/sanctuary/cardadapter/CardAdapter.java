@@ -1,4 +1,4 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardadapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.OnMoreLoadListener;
+import com.edward.sanctuary.R;
 
 import java.util.List;
 

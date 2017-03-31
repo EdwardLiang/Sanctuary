@@ -1,8 +1,10 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardadapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import com.edward.sanctuary.Card;
 
 import java.util.HashMap;
 import java.util.HashSet;

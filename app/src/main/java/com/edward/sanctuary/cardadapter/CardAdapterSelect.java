@@ -1,10 +1,14 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardadapter;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.View;
+
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.R;
+import com.edward.sanctuary.settings.Session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,7 @@ public class CardAdapterSelect extends CardAdapter {
     }
     public void clearSelected(){
         selectedItems.clear();
+        selecting = false;
     }
 
     public boolean getSelecting(){

@@ -1,8 +1,11 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardadapter;
 
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.cardactivity.SelectCardsForDeck;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.cardactivity;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +8,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.SearchView;
 
+import com.edward.sanctuary.Card;
+import com.edward.sanctuary.OnMoreLoadListener;
+import com.edward.sanctuary.R;
+import com.edward.sanctuary.cardadapter.CardAdapter;
 import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,14 +35,12 @@ public abstract class CardActivity extends AppCompatActivity {
     protected Lock reloading;
     protected final int CARDS_PER_PAGE = 10;
     protected SwipeRefreshLayout swl;
-    protected CardAdapterSelect ca;
+    protected CardAdapter ca;
     protected LinearLayoutManager llm;
+    protected RecyclerView recList;
 
     protected void onCreate(Bundle savedInstanceState) {
-        if(Session.getInstance(this).darkModeSet()){
-            this.setTheme(R.style.Night);
-            this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        darkModeSetup();
         super.onCreate(savedInstanceState);
         pagesLoaded = 1;
         pagesLoadedQuery = 1;
@@ -49,7 +52,41 @@ public abstract class CardActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         llm.setAutoMeasureEnabled(false);
 
+        doSetContentView();
+
+        recList = (RecyclerView) findViewById(R.id.cardList);
+        reloadCards();
+        addNoMoreCard();
+        System.out.println("Card reloading and add no more card not completed in super step.");
+
+        setCardAdapter();
+        recList.setAdapter(ca);
+        recList.setHasFixedSize(true);
+        recList.setLayoutManager(llm);
+
+        ca.setOnMoreLoadListener(new InfiniteLoadListener());
+        recList.addOnScrollListener(new InfiniteScrollListener());
+
+        SearchView view = (SearchView)findViewById(R.id.search);
+        view.setOnQueryTextListener(new QueryCards());
+
+        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        swl.setOnRefreshListener(new CardRefresh());
     }
+
+    protected void setCardAdapter(){
+        ca = new CardAdapter(cards, this);
+    }
+
+    protected void darkModeSetup(){
+        if(Session.getInstance(this).darkModeSet()){
+            this.setTheme(R.style.Night);
+            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    abstract protected void doSetContentView();
+
     public void addNoMoreCard(){
         int val = 1;
         if(querying){
@@ -159,20 +196,24 @@ public abstract class CardActivity extends AppCompatActivity {
         public void onRefresh() {
             try {
                 reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                pagesLoaded = 1;
-                seed = Database.generateSeed();
-                reloadCards();
-                end = false;
-                addNoMoreCard();
-                ca.clearSelected();
-                ca.setCardList(cards);
-                ca.notifyDataSetChanged();
-                swl.setRefreshing(false);
+                onRefreshCards();
                 reloading.unlock();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected void onRefreshCards(){
+        pagesLoaded = 1;
+        seed = Database.generateSeed();
+        reloadCards();
+        end = false;
+        addNoMoreCard();
+        //ca.clearSelected();
+        ca.setCardList(cards);
+        ca.notifyDataSetChanged();
+        swl.setRefreshing(false);
     }
 
     public class QueryCards implements SearchView.OnQueryTextListener{
@@ -185,23 +226,7 @@ public abstract class CardActivity extends AppCompatActivity {
         public boolean onQueryTextChange(String newText) {
             try {
                 reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                ca.clearSelected();
-                if(newText.equals("")){
-                    end = false;
-                    querying = false;
-                    swl.setEnabled(true);
-                }
-                else{
-                    swl.setEnabled(false);
-                    end = false;
-                    querying = true;
-                    pagesLoadedQuery = 1;
-                    queryText = newText;
-                }
-                reloadCards();
-                addNoMoreCard();
-                ca.setCardList(cards);
-                ca.notifyDataSetChanged();
+                queryChange(newText);
                 reloading.unlock();
                 return false;
             } catch (InterruptedException e) {
@@ -210,6 +235,27 @@ public abstract class CardActivity extends AppCompatActivity {
             }
             return false;
         }
+    }
+
+    protected void queryChange(String newText){
+        //ca.clearSelected();
+        if(newText.equals("")){
+            end = false;
+            querying = false;
+            swl.setEnabled(true);
+        }
+        else{
+            swl.setEnabled(false);
+            end = false;
+            querying = true;
+            pagesLoadedQuery = 1;
+            queryText = newText;
+        }
+        reloadCards();
+        addNoMoreCard();
+        ca.setCardList(cards);
+        ca.notifyDataSetChanged();
+
     }
 
 }
