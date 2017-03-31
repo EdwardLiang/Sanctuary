@@ -226,7 +226,8 @@ public class ManageDecks extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        System.out.println("Save stuff for manage decks here");
+        Intent intent = getIntent();
+        setResult(197, intent);
         finish();
     }
 

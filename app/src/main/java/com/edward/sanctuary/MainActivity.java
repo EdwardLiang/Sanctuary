@@ -204,7 +204,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 int totalItemCount = llm.getItemCount();
                 int lastVisibleItem = llm.findLastVisibleItemPosition();
                 int visibleThreshold = 5;
@@ -264,6 +263,7 @@ public class MainActivity extends AppCompatActivity
                     pagesLoaded = 1;
                     seed = Database.generateSeed();
                     reloadCards();
+                    end = false;
                     addNoMoreCard();
                     ca.clearSelected();
                     ca.setCardList(cards);
