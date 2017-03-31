@@ -1,4 +1,4 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;

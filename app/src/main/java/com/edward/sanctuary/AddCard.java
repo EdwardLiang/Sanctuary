@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
 
 public class AddCard extends AppCompatActivity {
 

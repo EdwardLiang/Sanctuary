@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.edward.sanctuary.ManageCardsInDeck"
+    tools:context="com.edward.sanctuary.cardactivity.ManageCardsInDeck"
     tools:showIn="@layout/activity_manage_cards_in_deck">
 
     <LinearLayout
@@ -28,7 +28,7 @@
             android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/manageCardList"
+            android:id="@+id/cardList"
             android:layout_width="match_parent"
             android:paddingRight="8dp"
             android:layout_height="match_parent" />

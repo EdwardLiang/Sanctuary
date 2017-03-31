@@ -20,7 +20,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.edward.sanctuary.cardactivity.MainActivity;
 import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
 
 import static com.edward.sanctuary.R.id.login;
 

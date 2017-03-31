@@ -1,4 +1,4 @@
-package com.edward.sanctuary;
+package com.edward.sanctuary.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.edward.sanctuary.R;
 import com.edward.sanctuary.database.Database;
 
 /**

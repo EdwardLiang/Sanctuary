@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".cardactivity.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <!--  android:theme="@style/Night" />-->
@@ -33,40 +33,40 @@
         <activity android:name=".AddCard">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.MainActivity" />
+                android:value="com.edward.sanctuary.cardactivity.MainActivity" />
         </activity>
-        <activity android:name=".SelectCardForDeck">
+        <activity android:name=".cardactivity.SelectCardForDeck">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.MainActivity" />
+                android:value="com.edward.sanctuary.cardactivity.MainActivity" />
         </activity>
         <activity
-            android:name=".SelectCardsForDeck"
+            android:name=".cardactivity.SelectCardsForDeck"
             android:label="@string/title_activity_select_cards_for_deck"
-            android:parentActivityName=".SelectCardForDeck"
+            android:parentActivityName=".cardactivity.SelectCardForDeck"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.SelectCardForDeck" />
+                android:value="com.edward.sanctuary.cardactivity.SelectCardForDeck" />
         </activity>
-        <activity android:name=".ManageDecks">
+        <activity android:name=".cardactivity.ManageDecks">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.MainActivity" />
+                android:value="com.edward.sanctuary.cardactivity.MainActivity" />
         </activity>
-        <activity android:name=".SettingsActivity">
+        <activity android:name=".settings.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.MainActivity" />
+                android:value="com.edward.sanctuary.cardactivity.MainActivity" />
         </activity>
         <activity
-            android:name=".ManageCardsInDeck"
+            android:name=".cardactivity.ManageCardsInDeck"
             android:label="@string/title_activity_manage_cards_in_deck"
-            android:parentActivityName=".ManageDecks"
+            android:parentActivityName=".cardactivity.ManageDecks"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.edward.sanctuary.ManageDecks" />
+                android:value="com.edward.sanctuary.cardactivity.ManageDecks" />
         </activity>
     </application>
 
