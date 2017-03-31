@@ -29,7 +29,7 @@ public class ManageCardsInDeck extends AppCompatActivity {
     private Card card;
     List<Card> cards;
     private final int CARDS_PER_PAGE = 10;
-    private CardAdapter ca;
+    private CardAdapterSelect ca;
     private int pagesLoaded;
     private int pagesLoadedQuery;
     private boolean querying;
@@ -100,7 +100,7 @@ public class ManageCardsInDeck extends AppCompatActivity {
 
         RecyclerView recList = (RecyclerView) findViewById(R.id.manageCardList);
         //cards = createList(20);
-        ca = new CardAdapter(cards, this);
+        ca = new CardAdapterSelect(cards, this);
         recList.setAdapter(ca);
 
         recList.setHasFixedSize(true);

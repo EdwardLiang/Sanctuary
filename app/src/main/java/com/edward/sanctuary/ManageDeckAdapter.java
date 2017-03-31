@@ -2,7 +2,6 @@ package com.edward.sanctuary;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -10,183 +9,74 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import com.edward.sanctuary.database.Database;
 
 import java.util.HashMap;
 import java.util.List;
 
+import static com.edward.sanctuary.R.layout.card_with_switch;
+
 /**
  * Created by edward on 3/19/17.
  */
 
-public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ManageDeckAdapter extends CardAdapterSelect {
 
-    private SparseBooleanArray selectedItems;
     private SparseBooleanArray checkedItems;
-    private List<Card> cardList;
     private HashMap<String, Card> inDrawer;
-    private Context context;
-
-    private final int VIEW_ITEM = 0;
-    private final int VIEW_LOADING = 1;
-    private boolean isLoading;
-    private OnMoreLoadListener mOnLoadMoreListener;
-    private boolean changed;
+    //private boolean changed;
 
     public ManageDeckAdapter(List<Card> cardList, Context context){
-        this.cardList = cardList;
+        super(cardList, context);
         inDrawer = Database.getDrawerDecksMap(context, Session.getInstance(context).getUserId());
-        selectedItems = new SparseBooleanArray();
         checkedItems = new SparseBooleanArray();
-        this.context = context;
-        isLoading = false;
-        changed = false;
+       // changed = false;
     }
 
-    public void setCardList(List<Card> cards){
-        cardList = cards;
-    }
-    public void clearSelected(){
-        selectedItems.clear();
-    }
+    @Override
+    protected void onBindCardViewHolderExtras(RecyclerView.ViewHolder cVH, int i){
+        CardViewHolderManageDeck cardViewHolder = (CardViewHolderManageDeck)cVH;
+        Card ci = cardList.get(i);
 
-    public void setOnMoreLoadListener(OnMoreLoadListener m){
-        this.mOnLoadMoreListener = m;
-    }
-
-    public OnMoreLoadListener getOnMoreLoadListener(){
-        return mOnLoadMoreListener;
-    }
-
-    public void toggleSelection(int pos){
-        System.out.println("Card " + pos + " added or removed from selected list");
-        if(selectedItems.get(pos, false)){
-            selectedItems.delete(pos);
+        if(inDrawer.containsKey(ci.getCard_name())){
+            checkedItems.put(i, true);
+        }
+        if(checkedItems.get(i, false)){
+            cardViewHolder.switch1.setChecked(true);
         }
         else{
-            selectedItems.put(pos, true);
+            cardViewHolder.switch1.setChecked(false);
         }
-    }
-
-    public boolean isLoading(){
-        if(isLoading){
-            return true;
-        }
-        return false;
-    }
-    public void setIsLoading(boolean bool){
-        if(bool){
-            isLoading = true;
-        }
-        else{
-            isLoading = false;
-        }
+        super.onBindCardViewHolderExtras(cardViewHolder, i);
     }
 
 
-    @Override
-    public int getItemCount(){
-        return cardList.size();
+    public RecyclerView.ViewHolder onCreateViewItemHolder(ViewGroup viewGroup, int i){
+        View itemView = LayoutInflater.
+                from(viewGroup.getContext()).
+                inflate(card_with_switch, viewGroup, false);
+        itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
+        CardViewHolder cH = createCardViewHolder(itemView);
+        return cH;
     }
 
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
-
-        if(viewHolder instanceof CardViewHolder) {
-            CardViewHolder cardViewHolder = (CardViewHolder)viewHolder;
-            Card ci = cardList.get(i);
-            cardViewHolder.vName.setText(ci.getCard_name());
-            cardViewHolder.vDescription.setText(ci.getCard_description());
-
-            if (selectedItems.get(i, false)) {
-                cardViewHolder.itemView.setSelected(true);
-                if(Session.getInstance(context).darkModeSet()) {
-                    cardViewHolder.itemView.setBackgroundColor(Color.BLACK);
-                }
-                else{
-                    cardViewHolder.itemView.setBackgroundColor(Color.LTGRAY);
-                }
-            } else {
-                cardViewHolder.itemView.setSelected(false);
-                if(Session.getInstance(context).darkModeSet()) {
-                    cardViewHolder.itemView.setBackgroundColor(context.getResources().getColor(R.color.cardview_dark_background));
-                }
-                else{
-                    cardViewHolder.itemView.setBackgroundColor(Color.WHITE);
-                }
-            }
-
-            if(inDrawer.containsKey(ci.getCard_name())){
-                checkedItems.put(i, true);
-            }
-
-            if(checkedItems.get(i, false)){
-                cardViewHolder.switch1.setChecked(true);
-            }
-            else{
-                cardViewHolder.switch1.setChecked(false);
-            }
-        }
-        else{
-            CardAdapter.LoadingViewHolder loadingViewHolder = (CardAdapter.LoadingViewHolder) viewHolder;
-            loadingViewHolder.progressBar.setIndeterminate(true);
-        }
+    public CardViewHolder createCardViewHolder(View itemView){
+        return new CardViewHolderManageDeck(itemView);
     }
 
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        if (i == VIEW_ITEM) {
-            View itemView = LayoutInflater.
-                    from(viewGroup.getContext()).
-                    inflate(R.layout.card_with_switch, viewGroup, false);
-            itemView.getLayoutParams().width = RecyclerView.LayoutParams.MATCH_PARENT;
-            CardViewHolder cH = new CardViewHolder(itemView);
-            return cH;
-
-        } else if (i == VIEW_LOADING) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.loading, viewGroup, false);
-            return new CardAdapter.LoadingViewHolder(view);
-        }
-
-        return null;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if(cardList.get(position) == null){
-            return VIEW_LOADING;
-        }
-        return VIEW_ITEM;
-    }
-
-    public class CardViewHolder extends RecyclerView.ViewHolder{
-        protected TextView vName;
-        protected TextView vDescription;
-        protected View itemView;
+    public class CardViewHolderManageDeck extends CardViewHolderSelect{
         protected Switch switch1;
 
+        public void onClickNotSelect(int pos){
+            Intent intent = new Intent(context, ManageCardsInDeck.class);
+            intent.putExtra("Card", cardList.get(pos));
+            context.startActivity(intent);
+        }
 
-        public CardViewHolder(View itemView) {
+        public CardViewHolderManageDeck(View itemView) {
             super(itemView);
-            this.itemView = itemView;
-            vName = (TextView)itemView.findViewById(R.id.textView5);
-            vDescription = (TextView)itemView.findViewById(R.id.textView6);
             switch1 = (Switch)itemView.findViewById(R.id.switch1);
-
-            itemView.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    int pos = getAdapterPosition();
-                    if(cardList.get(pos).getCard_id() == -1){
-                        return;
-                    }
-                    Intent intent = new Intent(context, ManageCardsInDeck.class);
-                    intent.putExtra("Card", cardList.get(pos));
-                    context.startActivity(intent);
-                }
-            });
             switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -199,14 +89,14 @@ public class ManageDeckAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if(isChecked) {
                         checkedItems.put(pos, true);
                         Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), true, context);
-                        changed = true;
+                      //  changed = true;
                     }
                     else{
                         if(checkedItems.get(pos, false)){
                             if(inDrawer.containsKey(cardList.get(pos).getCard_name())){
                                 inDrawer.remove(cardList.get(pos).getCard_name());
                                 Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), false, context);
-                                changed = true;
+                         //       changed = true;
                             }
                             checkedItems.delete(pos);
                         }

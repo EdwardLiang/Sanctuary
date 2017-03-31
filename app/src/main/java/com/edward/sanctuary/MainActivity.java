@@ -3,7 +3,6 @@ package com.edward.sanctuary;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -12,8 +11,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -27,45 +24,26 @@ import com.edward.sanctuary.database.Database;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends CardActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final int CARDS_PER_PAGE = 10;
-
     private NavigationView navigationView;
-    private List<Card> cards;
     private List<Card> drawerDecks;
-    private CardAdapter ca;
-    private int pagesLoaded;
-    private int pagesLoadedQuery;
-    private boolean querying;
-    private String queryText;
-    private boolean end;
-    private double seed;
-    private Lock reloading;
-    private SwipeRefreshLayout swl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pagesLoaded = 1;
-        pagesLoadedQuery = 1;
-        seed = Database.generateSeed();
-        end = false;
         setTitle("Sanctuary");
         if(Session.getInstance(this).darkModeSet()){
             this.getApplication().setTheme(R.style.Theme_Night_NoActionBar);
             this.setTheme(R.style.Theme_Night_NoActionBar);
+            this.getActionBar().hide();
             //toolbar.setPopupTheme(R.style.Night);
         }
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        reloading = new ReentrantLock();
 
         System.out.println("Welcome: " + Session.getInstance(this).getUsername());
 
@@ -73,8 +51,6 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                 //       .setAction("Action", null).show();
                 Intent intent = new Intent(view.getContext(), AddCard.class);
                 startActivityForResult(intent, 2301);
             }
@@ -83,8 +59,6 @@ public class MainActivity extends AppCompatActivity
         fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //       .setAction("Action", null).show();
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Delete Cards")
                         .setMessage("Are you sure you want to delete selected cards?")
@@ -138,172 +112,19 @@ public class MainActivity extends AppCompatActivity
         reloadCards();
         addNoMoreCard();
 
-        //cards = Database.getCardsSearch(MainActivity.this, "N", Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-
-        ca = new CardAdapter(cards, this);
+        ca = new CardAdapterSelect(cards, this);
         recList.setAdapter(ca);
         recList.setHasFixedSize(true);
-
-
-        final LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        llm.setAutoMeasureEnabled(false);
         recList.setLayoutManager(llm);
 
-        ca.setOnMoreLoadListener(new OnMoreLoadListener() {
-            @Override
-            public void onLoadMore() {
-                System.out.println("Loading more..");
-
-                Handler handler = new Handler();
-
-                final Runnable r2 = new Runnable(){
-                    public void run(){
-                        cards.add(null);
-                        ca.notifyItemInserted(cards.size() - 1);
-                    }
-                };
-                handler.post(r2);
-
-                final Runnable r = new Runnable() {
-                    public void run() {
-                        try {
-                            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                            if(cards.size() > 0 && cards.get(cards.size() - 1) == null) {
-                                cards.remove(cards.size() - 1);
-                                ca.notifyItemRemoved(cards.size());
-                            }
-
-                            //cards = Database.getCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE);
-                            if(querying){
-                                pagesLoadedQuery++;
-                            }
-                            else{
-                                pagesLoaded++;
-                            }
-                            reloadCards();
-
-                            addNoMoreCard();
-
-                            ca.setCardList(cards);
-                            ca.notifyDataSetChanged();
-                            ca.setIsLoading(false);
-                            reloading.unlock();
-
-                        } catch (InterruptedException e) {
-                            System.out.println("Could not reload! Lock is bound!");
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                //handler.postDelayed(r,1000);
-                handler.post(r);
-            }
-        });
-
-        recList.addOnScrollListener(new RecyclerView.OnScrollListener(){
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int totalItemCount = llm.getItemCount();
-                int lastVisibleItem = llm.findLastVisibleItemPosition();
-                int visibleThreshold = 5;
-
-                if (!ca.isLoading() && lastVisibleItem >= totalItemCount - 1 && !end) {
-                    if (ca.getOnMoreLoadListener() != null) {
-                        ca.getOnMoreLoadListener().onLoadMore();
-                    }
-                    System.out.println("Set is loading true");
-                    ca.setIsLoading(true);
-                }
-            }
-        });
+        ca.setOnMoreLoadListener(new InfiniteLoadListener());
+        recList.addOnScrollListener(new InfiniteScrollListener());
 
         SearchView view = (SearchView)findViewById(R.id.search);
-        view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+        view.setOnQueryTextListener(new QueryCards());
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                try {
-                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                    ca.clearSelected();
-                    if(newText.equals("")){
-                        end = false;
-                        querying = false;
-                        swl.setEnabled(true);
-                    }
-                    else{
-                        swl.setEnabled(false);
-                        end = false;
-                        querying = true;
-                        pagesLoadedQuery = 1;
-                        queryText = newText;
-                    }
-                    reloadCards();
-                    addNoMoreCard();
-                    ca.setCardList(cards);
-                    ca.notifyDataSetChanged();
-                    reloading.unlock();
-                    return false;
-                } catch (InterruptedException e) {
-                    System.out.println("Lock Bound! Cannot load based on query!");
-                    e.printStackTrace();
-                }
-                return false;
-            }
-        });
         swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
-        swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                try {
-                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
-                    pagesLoaded = 1;
-                    seed = Database.generateSeed();
-                    reloadCards();
-                    end = false;
-                    addNoMoreCard();
-                    ca.clearSelected();
-                    ca.setCardList(cards);
-                    ca.notifyDataSetChanged();
-                    swl.setRefreshing(false);
-                    reloading.unlock();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void reloadCards(){
-        if(querying){
-            cards = Database.getCardsSearch(MainActivity.this, queryText, Session.getInstance(MainActivity.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
-        }
-        else{
-            cards = Database.getRandomCards(MainActivity.this, Session.getInstance(MainActivity.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-        }
-    }
-
-    public void addNoMoreCard(){
-        int val = 1;
-        if(querying){
-            val = pagesLoadedQuery;
-        }
-        else{
-            val = pagesLoaded;
-        }
-        if(cards.size() < val*CARDS_PER_PAGE){
-            Card card = new Card();
-            card.setCard_name("No More Cards!");
-            card.setCard_description("You've reached the end");
-            card.setCard_id(-1);
-            cards.add(card);
-            end = true;
-        }
+        swl.setOnRefreshListener(new CardRefresh());
     }
 
     public void addDecks(List<Card> decks){
@@ -329,7 +150,6 @@ public class MainActivity extends AppCompatActivity
             );
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -418,4 +238,5 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
 }
