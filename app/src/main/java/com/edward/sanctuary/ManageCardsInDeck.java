@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.edward.sanctuary.database.Database;
 
@@ -66,6 +68,8 @@ public class ManageCardsInDeck extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ca.clearSelected();
+                ca.notifyDataSetChanged();
                 Intent intent = new Intent(ManageCardsInDeck.this, SelectCardsForDeck.class);
                 intent.putExtra("Card", card);
                 startActivityForResult(intent, 765);
@@ -184,6 +188,67 @@ public class ManageCardsInDeck extends AppCompatActivity {
             }
         });
 
+        SearchView view = (SearchView)findViewById(R.id.search);
+        view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    ca.clearSelected();
+                    if(newText.equals("")){
+                        end = false;
+                        querying = false;
+                        swl.setEnabled(true);
+                    }
+                    else{
+                        swl.setEnabled(false);
+                        end = false;
+                        querying = true;
+                        pagesLoadedQuery = 1;
+                        queryText = newText;
+                    }
+                    reloadCards();
+                    addNoMoreCard();
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                    reloading.unlock();
+                    return false;
+                } catch (InterruptedException e) {
+                    System.out.println("Lock Bound! Cannot load based on query!");
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        });
+
+
+        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    pagesLoaded = 1;
+                    seed = Database.generateSeed();
+                    reloadCards();
+                    end = false;
+                    addNoMoreCard();
+                    ca.clearSelected();
+                    ca.setCardList(cards);
+                    ca.notifyDataSetChanged();
+                    swl.setRefreshing(false);
+                    reloading.unlock();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     private void removeDialog() {
@@ -197,7 +262,25 @@ public class ManageCardsInDeck extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: put stuff here.
+                        try {
+                            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                            List<Card> toDelete = ca.getSelected();
+                            int count = 0;
+                            for(Card a : toDelete){
+                                Database.deleteCardFromDeck(ManageCardsInDeck.this, card, a);
+                                count++;
+                            }
+                            reloadCards();
+                            addNoMoreCard();
+                            ca.clearSelected();
+                            ca.setCardList(cards);
+                            ca.notifyDataSetChanged();
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.constraintLayout), count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
+                            snackbar.show();
+                            reloading.unlock();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 })
                 .setNegativeButton("No", null)
@@ -206,7 +289,7 @@ public class ManageCardsInDeck extends AppCompatActivity {
 
     public void reloadCards(){
         if(querying){
-            cards = Database.getCardsSearch(this, queryText, Session.getInstance(this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
+            cards = Database.getCardsInDeckSearch(this, card, queryText, Session.getInstance(this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
         }
         else{
             cards = Database.getCardsInDeckByRandom(this, Session.getInstance(this).getUserId(), card, pagesLoaded*CARDS_PER_PAGE, seed);

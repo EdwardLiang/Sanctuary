@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,7 +39,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
     private boolean querying;
     private String queryText;
     private Lock reloading;
-    //private SwipeRefreshLayout swl;
+    private SwipeRefreshLayout swl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +160,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                         }
                     }
                 };
-                handler.postDelayed(r,1000);
+                handler.post(r);
             }
         });
 
@@ -193,13 +194,14 @@ public class SelectCardsForDeck extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 try {
                     reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    ca.clearSelected();
                     if(newText.equals("")){
                         end = false;
                         querying = false;
                         cards = Database.getRandomCards(SelectCardsForDeck.this, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
-                        //swl.setEnabled(true);
+                        swl.setEnabled(true);
                     }
                     else{
                         end = false;
@@ -209,7 +211,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                         cards = Database.getCardsSearch(SelectCardsForDeck.this, newText, Session.getInstance(SelectCardsForDeck.this).getUserId(), pagesLoadedQuery*CARDS_PER_PAGE);
                         ca.setCardList(cards);
                         ca.notifyDataSetChanged();
-                        //swl.setEnabled(false);
+                        swl.setEnabled(false);
                     }
                     reloading.unlock();
                     return false;
@@ -220,7 +222,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                 return false;
             }
         });
-       /* swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        swl = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
         swl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -229,7 +231,9 @@ public class SelectCardsForDeck extends AppCompatActivity {
                     pagesLoaded = 1;
                     seed = Database.generateSeed();
                     reloadCards();
+                    end = false;
                     addNoMoreCard();
+                    ca.clearSelected();
                     ca.setCardList(cards);
                     ca.notifyDataSetChanged();
                     swl.setRefreshing(false);
@@ -238,7 +242,7 @@ public class SelectCardsForDeck extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });*/
+        });
 
 
     }

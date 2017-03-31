@@ -62,6 +62,12 @@ public final class SQLCommands {
                     CardCardContract.CardCardEntry.TABLE_NAME + " deck INNER JOIN " + CardContract.CardEntry.TABLE_NAME +
                     " c ON deck.card2 = c._id WHERE deck.owner = ? AND deck.card1 = ?";
 
+    public static final String SQL_CARDS_IN_DECK_QUERY =
+            "SELECT c._id, c.name, c.description, c.date_created FROM " +
+                    CardCardContract.CardCardEntry.TABLE_NAME + " deck INNER JOIN " + CardContract.CardEntry.TABLE_NAME +
+                    " c ON deck.card2 = c._id WHERE deck.owner = ? AND deck.card1 = ? AND c.name LIKE ? ORDER BY (CASE WHEN c.name = ? THEN 1 WHEN c.name LIKE ? THEN 2 ELSE 3 END),c.name LIMIT ?";
+
+
     public static final String SQL_CARDS_IN_DECK_RANDOM =
             "SELECT c._id, c.name, c.description, c.date_created FROM " +
                     CardCardContract.CardCardEntry.TABLE_NAME + " deck INNER JOIN " + CardContract.CardEntry.TABLE_NAME +

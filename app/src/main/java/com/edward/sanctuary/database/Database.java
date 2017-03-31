@@ -525,21 +525,6 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        /*String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
-        String[] selectionArgs = { Long.toString(userId), "%" + term + "%" };
-        String sortOrder = "(CASE WHEN " + CardContract.CardEntry.NAME + " = '" + term + "' THEN 1 WHEN " +
-                CardContract.CardEntry.NAME + " LIKE '" + term + "%' THEN 2 ELSE 3 END)," + CardContract.CardEntry.NAME;
-
-        Cursor cursor = db.query(
-                CardContract.CardEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder,
-                String.valueOf(amount)
-        );*/
         String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
         Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING, selectionArgs);
@@ -554,6 +539,34 @@ public class Database {
         }
         return cards;
     }
+
+    public static List<Card> getCardsInDeckSearch(Context context, Card car, String term, long userId, int amount){
+        // Gets the data repository in write mode
+        List<Card> cards = new LinkedList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String[] selectionArgs = { Long.toString(userId), Long.toString(car.getCard_id()), "%" + term + "%", term, term + "%", String.valueOf(amount) };
+
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_CARDS_IN_DECK_QUERY, selectionArgs);
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            cards.add(card);
+        }
+        return cards;
+    }
+
     public static List<Card> getDecksSearch(Context context, String term, long userId, int amount){
         // Gets the data repository in write mode
         List<Card> cards = new LinkedList<Card>();
@@ -566,21 +579,6 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        /*String selection = CardContract.CardEntry.OWNER + " = ? AND " + CardContract.CardEntry.NAME + " LIKE ?";
-        String[] selectionArgs = { Long.toString(userId), "%" + term + "%" };
-        String sortOrder = "(CASE WHEN " + CardContract.CardEntry.NAME + " = '" + term + "' THEN 1 WHEN " +
-                CardContract.CardEntry.NAME + " LIKE '" + term + "%' THEN 2 ELSE 3 END)," + CardContract.CardEntry.NAME;
-
-        Cursor cursor = db.query(
-                CardContract.CardEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder,
-                String.valueOf(amount)
-        );*/
         String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
         Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING_DECKS, selectionArgs);

@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity
                                     ca.notifyDataSetChanged();
                                     Snackbar snackbar = Snackbar.make(navigationView, count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
                                     snackbar.show();
+                                    reloadDecks();
                                     reloading.unlock();
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
@@ -229,6 +230,7 @@ public class MainActivity extends AppCompatActivity
             public boolean onQueryTextChange(String newText) {
                 try {
                     reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                    ca.clearSelected();
                     if(newText.equals("")){
                         end = false;
                         querying = false;
@@ -394,6 +396,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    public void reloadDecks(){
+        drawerDecks = Database.getDrawerDecks(this, Session.getInstance(this).getUserId());
+        addDecks(drawerDecks);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 2301 && resultCode == 188){
@@ -407,8 +414,7 @@ public class MainActivity extends AppCompatActivity
             snackbar.show();
         }
         if(requestCode == 211 && resultCode == 197){
-            drawerDecks = Database.getDrawerDecks(this, Session.getInstance(this).getUserId());
-            addDecks(drawerDecks);
+            reloadDecks();
         }
 
     }

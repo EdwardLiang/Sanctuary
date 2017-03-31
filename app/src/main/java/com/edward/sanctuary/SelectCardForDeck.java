@@ -107,7 +107,7 @@ public class SelectCardForDeck extends AppCompatActivity {
                         }
                     }
                 };
-                handler.postDelayed(r,1000);
+                handler.post(r);
             }
         });
 
