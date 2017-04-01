@@ -88,7 +88,10 @@ public class ManageCardsInDeck extends CardActivitySelect {
                             }
                             reloadCards();
                             addNoMoreCard();
-                            ((CardAdapterSelect)ca).clearSelected();
+                            getCardAdapterSelect().clearSelected();
+                            if(am != null) {
+                                am.finish();
+                            }
                             ca.setCardList(cards);
                             ca.notifyDataSetChanged();
                             Snackbar snackbar = Snackbar.make(findViewById(R.id.constraintLayout), count + " Cards Removed", Snackbar.LENGTH_LONG); // Don’t forget to show!

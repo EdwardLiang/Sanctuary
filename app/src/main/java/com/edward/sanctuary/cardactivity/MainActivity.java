@@ -83,6 +83,9 @@ public class MainActivity extends CardActivitySelect
                                     reloadCards();
                                     addNoMoreCard();
                                     getCardAdapterSelect().clearSelected();
+                                    if(am != null){
+                                        am.finish();
+                                    }
                                     getCardAdapterSelect().setCardList(cards);
                                     getCardAdapterSelect().notifyDataSetChanged();
                                     Snackbar snackbar = Snackbar.make(navigationView, count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
