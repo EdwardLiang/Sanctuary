@@ -18,9 +18,11 @@ import android.widget.Toast;
 
 import com.edward.sanctuary.AddCard;
 import com.edward.sanctuary.Card;
+import com.edward.sanctuary.CardDetailActivity;
 import com.edward.sanctuary.LoginActivity;
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.cardadapter.CardAdapterSelect;
+import com.edward.sanctuary.cardadapter.OnClickNotSelectListener;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 import com.edward.sanctuary.settings.SettingsActivity;
@@ -33,6 +35,7 @@ public class MainActivity extends CardActivitySelect
 
     private NavigationView navigationView;
     private List<Card> drawerDecks;
+    private boolean twoPane;
 
     @Override
     protected void doSetContentView(){
@@ -52,6 +55,15 @@ public class MainActivity extends CardActivitySelect
         setTitle("Sanctuary");
 
         System.out.println("Welcome: " + Session.getInstance(this).getUsername());
+
+        getCardAdapterSelect().setOnClickNotSelectListener(new OnClickNotSelectListener() {
+            @Override
+            public void onClickNotSelect(Card c) {
+                Intent intent = new Intent(MainActivity.this, CardDetailActivity.class);
+                intent.putExtra("Card", c);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

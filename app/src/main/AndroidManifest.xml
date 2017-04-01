@@ -24,6 +24,12 @@
             android:label="@string/title_activity_main"
             android:theme="@style/Light" />
         <!--  android:theme="@style/Night" />-->
+        <activity
+            android:name=".CardDetailActivity"
+            android:label="CardDetailActivity"
+            android:theme="@style/Light">
+        </activity>
+
 
         <activity android:name=".AddCard">
             <meta-data

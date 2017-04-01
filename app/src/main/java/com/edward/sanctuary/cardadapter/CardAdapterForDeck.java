@@ -16,7 +16,6 @@ import java.util.List;
 
 public class CardAdapterForDeck extends CardAdapter {
 
-
     public CardAdapterForDeck(List<Card> cardList, Context context){
         super(cardList, context);
     }
