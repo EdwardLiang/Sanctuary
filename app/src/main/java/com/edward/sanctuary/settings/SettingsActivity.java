@@ -15,9 +15,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public void onCreate(Bundle savedInstanceState){
         if(Session.getInstance(this).darkModeSet()){
             this.setTheme(R.style.Night);
-            this.getSupportActionBar().hide();
-            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+            //this.getSupportActionBar().hide();
         }
+        else{
+            this.setTheme(R.style.Light_Actionbar2);
+        }
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
         checkValues();

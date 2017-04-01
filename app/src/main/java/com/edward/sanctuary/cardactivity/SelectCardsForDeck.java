@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,17 +43,10 @@ public class SelectCardsForDeck extends CardActivitySelect {
     protected void onCreate(Bundle savedInstanceState) {
         //Card before super, since loading requires card.
         card = (Card)getIntent().getSerializableExtra("Card");
+        setTitle("Select For: " + card.getCard_name());
         super.onCreate(savedInstanceState);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if(Session.getInstance(this).darkModeSet()){
-            this.getSupportActionBar().hide();
-        }
         final String prev = getIntent().getStringExtra("Intent");
-
-        setTitle("Select For: " + card.getCard_name());
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

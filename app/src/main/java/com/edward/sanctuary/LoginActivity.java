@@ -71,7 +71,10 @@ public class LoginActivity extends AppCompatActivity {
 
         if(Session.getInstance(this).darkModeSet()){
             this.setTheme(R.style.Night);
-            this.getSupportActionBar().hide();
+//            this.getSupportActionBar().hide();
+        }
+        else{
+            this.setTheme(R.style.Light_Actionbar2);
         }
 
         setContentView(R.layout.activity_login);

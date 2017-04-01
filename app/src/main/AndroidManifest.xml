@@ -2,18 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.edward.sanctuary">
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_memory_black_24dp"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_memory_black_24dp"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light">
+        android:theme="@style/Light">
 
         <activity
             android:name=".LoginActivity"
@@ -27,7 +22,7 @@
         <activity
             android:name=".cardactivity.MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/Light" />
         <!--  android:theme="@style/Night" />-->
 
         <activity android:name=".AddCard">
@@ -44,7 +39,7 @@
             android:name=".cardactivity.SelectCardsForDeck"
             android:label="@string/title_activity_select_cards_for_deck"
             android:parentActivityName=".cardactivity.SelectCardForDeck"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Light">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edward.sanctuary.cardactivity.SelectCardForDeck" />
@@ -63,11 +58,11 @@
             android:name=".cardactivity.ManageCardsInDeck"
             android:label="@string/title_activity_manage_cards_in_deck"
             android:parentActivityName=".cardactivity.ManageDecks"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Light">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.edward.sanctuary.cardactivity.ManageDecks" />
         </activity>
     </application>
-
+    <uses-permission android:name="android.permission.VIBRATE"/>
 </manifest>

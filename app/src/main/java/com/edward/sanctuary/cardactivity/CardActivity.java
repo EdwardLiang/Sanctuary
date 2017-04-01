@@ -6,6 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.SearchView;
 
 import com.edward.sanctuary.Card;
@@ -38,9 +39,11 @@ public abstract class CardActivity extends AppCompatActivity {
     protected CardAdapter ca;
     protected LinearLayoutManager llm;
     protected RecyclerView recList;
+    protected Toolbar toolbar;
 
     protected void onCreate(Bundle savedInstanceState) {
         darkModeSetup();
+
         super.onCreate(savedInstanceState);
         pagesLoaded = 1;
         pagesLoadedQuery = 1;
@@ -53,6 +56,8 @@ public abstract class CardActivity extends AppCompatActivity {
         llm.setAutoMeasureEnabled(false);
 
         doSetContentView();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         recList = (RecyclerView) findViewById(R.id.cardList);
         reloadCards();
@@ -80,8 +85,9 @@ public abstract class CardActivity extends AppCompatActivity {
 
     protected void darkModeSetup(){
         if(Session.getInstance(this).darkModeSet()){
-            this.setTheme(R.style.Night);
-            this.getActionBar().setDisplayHomeAsUpEnabled(true);
+            this.getApplication().setTheme(R.style.Theme_Night_NoActionBar);
+            this.setTheme(R.style.Theme_Night_NoActionBar);
+            //toolbar.setPopupTheme(R.style.Night);
         }
     }
 
@@ -110,15 +116,6 @@ public abstract class CardActivity extends AppCompatActivity {
         }
         else{
             cards = Database.getRandomCards(this, Session.getInstance(this).getUserId(), pagesLoaded*CARDS_PER_PAGE, seed);
-        }
-    }
-
-    public void setActionBarSelecting(boolean selecting){
-        if(selecting){
-
-        }
-        else{
-
         }
     }
 
