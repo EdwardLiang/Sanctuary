@@ -9,8 +9,22 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="Night" parent="Theme.AppCompat.NoActionBar" />
+    <style name="Night" parent="Theme.AppCompat.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
 
-    <style name="Theme.Night.NoActionBar" parent="Theme.AppCompat.NoActionBar" />
+    <style name="Theme.Night.NoActionBar" parent="Theme.AppCompat.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Light" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Theme.Light.Light" parent="Theme.AppCompat.Light" />
+
+    <style name="Light_Actionbar" parent="Theme.Light.Light" />
+
+    <style name="Light_Actionbar2" parent="android:Theme.Material.Light" />
 
 </resources>

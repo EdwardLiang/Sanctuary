@@ -25,9 +25,6 @@ public class ManageDecks extends CardActivitySelect {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(Session.getInstance(this).darkModeSet()){
-            this.getSupportActionBar().hide();
-        }
         setTitle("Manage Decks");
 
         setupActionBar();

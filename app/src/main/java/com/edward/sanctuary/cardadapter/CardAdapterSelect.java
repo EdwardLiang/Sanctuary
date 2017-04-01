@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.edward.sanctuary.Card;
 import com.edward.sanctuary.R;
+import com.edward.sanctuary.cardactivity.CardActivitySelect;
 import com.edward.sanctuary.settings.Session;
 
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ public class CardAdapterSelect extends CardAdapter {
                             System.out.println("selected");
                             setSelectedBackgroundColor(v);
                             toggleSelection(pos);
+                            ((CardActivitySelect)context).setActionBarSelecting(true);
                             v.setSelected(true);
                         }
                     }
@@ -115,12 +117,14 @@ public class CardAdapterSelect extends CardAdapter {
                             v.setSelected(false);
                             if(selectedItems.size() == 0){
                                 selecting = false;
+                                ((CardActivitySelect)context).setActionBarSelecting(false);
                             }
                         } else {
                             setSelectedBackgroundColor(v);
                             toggleSelection(pos);
                             v.setSelected(true);
                         }
+                        ((CardActivitySelect)context).notifyNumSelectedChanged();
                     }
                     else if(!selecting){
                         onClickNotSelect(pos);

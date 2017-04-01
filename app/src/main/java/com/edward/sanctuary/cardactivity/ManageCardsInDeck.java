@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,13 +33,10 @@ public class ManageCardsInDeck extends CardActivitySelect {
         card = (Card)getIntent().getSerializableExtra("Card");
         super.onCreate(savedInstanceState);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        if(Session.getInstance(this).darkModeSet()){
+        /*if(Session.getInstance(this).darkModeSet()){
             this.getSupportActionBar().hide();
-            this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+            //this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }*/
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab3);
@@ -150,6 +146,4 @@ public class ManageCardsInDeck extends CardActivitySelect {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
 }
