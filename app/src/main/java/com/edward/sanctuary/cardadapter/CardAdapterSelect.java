@@ -2,6 +2,7 @@ package com.edward.sanctuary.cardadapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -92,6 +93,8 @@ public class CardAdapterSelect extends CardAdapter {
                             first = true;
                             selecting = true;
                             System.out.println("selected");
+                            Vibrator vib = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                            vib.vibrate(20);
                             setSelectedBackgroundColor(v);
                             toggleSelection(pos);
                             ((CardActivitySelect)context).setActionBarSelecting(true);

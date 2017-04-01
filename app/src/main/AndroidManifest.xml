@@ -64,5 +64,5 @@
                 android:value="com.edward.sanctuary.cardactivity.ManageDecks" />
         </activity>
     </application>
-
+    <uses-permission android:name="android.permission.VIBRATE"/>
 </manifest>
