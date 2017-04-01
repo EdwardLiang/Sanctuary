@@ -12,8 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.edward.sanctuary.Card;
+import com.edward.sanctuary.CardDetailActivity;
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.cardadapter.CardAdapterSelect;
+import com.edward.sanctuary.cardadapter.OnClickNotSelectListener;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 
@@ -32,11 +34,15 @@ public class ManageCardsInDeck extends CardActivitySelect {
         //Card before super, since loading requires card.
         card = (Card)getIntent().getSerializableExtra("Card");
         super.onCreate(savedInstanceState);
+        getCardAdapterSelect().setOnClickNotSelectListener(new OnClickNotSelectListener() {
+            @Override
+            public void onClickNotSelect(Card c) {
+                Intent intent = new Intent(ManageCardsInDeck.this, CardDetailActivity.class);
+                intent.putExtra("Card", c);
+                startActivity(intent);
+            }
+        });
 
-        /*if(Session.getInstance(this).darkModeSet()){
-            this.getSupportActionBar().hide();
-            //this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        }*/
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab3);
