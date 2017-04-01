@@ -39,11 +39,16 @@ public class ManageDeckAdapter extends CardAdapterSelect {
        // changed = false;
     }
 
+    public void clearSelected(){
+        checkedItems.clear();
+        selectedItems.clear();
+        selecting = false;
+    }
+
     @Override
     protected void onBindCardViewHolderExtras(RecyclerView.ViewHolder cVH, int i){
         CardViewHolderManageDeck cardViewHolder = (CardViewHolderManageDeck)cVH;
         Card ci = cardList.get(i);
-
         if(inDrawer.containsKey(ci.getCard_name())){
             checkedItems.put(i, true);
         }
@@ -94,14 +99,16 @@ public class ManageDeckAdapter extends CardAdapterSelect {
                     if(isChecked) {
                         checkedItems.put(pos, true);
                         Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), true, context);
-                      //  changed = true;
+                        inDrawer = Database.getDrawerDecksMap(context, Session.getInstance(context).getUserId());
+                        //  changed = true;
                     }
                     else{
                         if(checkedItems.get(pos, false)){
                             if(inDrawer.containsKey(cardList.get(pos).getCard_name())){
                                 inDrawer.remove(cardList.get(pos).getCard_name());
                                 Database.setInDrawer(cardList.get(pos), Session.getInstance(context).getUserId(), false, context);
-                         //       changed = true;
+                                inDrawer = Database.getDrawerDecksMap(context, Session.getInstance(context).getUserId());
+                                //       changed = true;
                             }
                             checkedItems.delete(pos);
                         }

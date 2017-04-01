@@ -26,7 +26,6 @@ public class ManageDecks extends CardActivitySelect {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Manage Decks");
-
         setupActionBar();
     }
 
