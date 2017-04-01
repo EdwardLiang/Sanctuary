@@ -47,6 +47,7 @@ public class SelectCardsForDeck extends CardActivitySelect {
         super.onCreate(savedInstanceState);
 
         final String prev = getIntent().getStringExtra("Intent");
+        final boolean fromHome = getIntent().getBooleanExtra("FromHome", false);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +73,7 @@ public class SelectCardsForDeck extends CardActivitySelect {
                     Database.setIsDeck(card, Session.getInstance(SelectCardsForDeck.this).getUserId(), true, SelectCardsForDeck.this);
                     System.out.println(card.getCard_name() + " set as deck");
                 }
-                if(prev != null && prev.equals("AddDeck")){
+                if(prev != null && prev.equals("AddDeck") && fromHome){
                     Intent intent = new Intent(SelectCardsForDeck.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);

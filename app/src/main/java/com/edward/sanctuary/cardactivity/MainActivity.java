@@ -198,7 +198,8 @@ public class MainActivity extends CardActivitySelect
         int id = item.getItemId();
 
         if (id == R.id.nav_add_deck) {
-            startActivity(new Intent(this,SelectCardForDeck.class));
+            Intent intent = new Intent(this,SelectCardForDeck.class);
+            startActivity(intent);
         }
         if (id == R.id.nav_manage_decks) {
             Intent intent = new Intent(this,ManageDecks.class);

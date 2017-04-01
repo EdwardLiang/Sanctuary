@@ -654,6 +654,23 @@ public class Database {
 
     }
 
+    public static void deleteDeck(Context context, long userid, Card deck){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Define 'where' part of query.
+        String selection = CardCardContract.CardCardEntry.CARD1 + " = ?";
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = { String.valueOf(deck.getCard_id())};
+        // Issue SQL statement.
+        db.delete(CardCardContract.CardCardEntry.TABLE_NAME, selection, selectionArgs);
+
+        setIsDeck(deck, userid, false, context);
+        setInDrawer(deck, userid, false, context);
+
+    }
+
+
 
 
     public static List<Card> getRandomCards(Context context, long userId, int amount, double seed){
