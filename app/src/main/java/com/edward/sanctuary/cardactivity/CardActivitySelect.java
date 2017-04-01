@@ -25,19 +25,25 @@ public abstract class CardActivitySelect extends CardActivity {
     }
 
     public void notifyNumSelectedChanged(){
-        am.setTitle(getCardAdapterSelect().getSelected().size() + " Selected");
+        if(am != null) {
+            am.setTitle(getCardAdapterSelect().getSelected().size() + " Selected");
+        }
     }
 
     @Override
     protected void queryChange(String newText) {
         ((CardAdapterSelect)ca).clearSelected();
-        am.finish();
+        if(am != null) {
+            am.finish();
+        }
         super.queryChange(newText);
     }
     @Override
     protected void onRefreshCards(){
         ((CardAdapterSelect)ca).clearSelected();
-        am.finish();
+        if(am != null) {
+            am.finish();
+        }
         super.onRefreshCards();
     }
 
