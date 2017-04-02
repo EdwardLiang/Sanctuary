@@ -151,7 +151,7 @@ public class SelectCardsForDeck extends CardActivitySelect {
                                 e.printStackTrace();
                             }
                             Intent intent = getIntent();
-                            setResult(876);
+                            setResult(877);
 
                             finish();
                         }
@@ -162,7 +162,7 @@ public class SelectCardsForDeck extends CardActivitySelect {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent = getIntent();
-                            setResult(876);
+                            setResult(877);
                             finish();
                         }
                     })

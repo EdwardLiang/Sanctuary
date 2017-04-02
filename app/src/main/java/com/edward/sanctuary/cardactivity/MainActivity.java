@@ -69,6 +69,10 @@ public class MainActivity extends CardActivitySelect
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getCardAdapterSelect().clearSelected();
+                if(am != null){
+                    am.finish();
+                }
                 Intent intent = new Intent(view.getContext(), AddCard.class);
                 startActivityForResult(intent, 2301);
             }

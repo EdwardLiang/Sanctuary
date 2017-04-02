@@ -97,11 +97,19 @@ public class ManageDecks extends CardActivitySelect {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(resultCode == 197){
+        try {
+            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
             reloadCards();
             addNoMoreCard();
             ca.setCardList(cards);
+            getCardAdapterSelect().clearSelected();
+            if(am != null) {
+                am.finish();
+            }
             ca.notifyDataSetChanged();
+            reloading.unlock();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -144,7 +152,4 @@ public class ManageDecks extends CardActivitySelect {
                 .setNegativeButton("No", null)
                 .show();
     }
-
-
-
 }

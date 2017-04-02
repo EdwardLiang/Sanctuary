@@ -130,6 +130,7 @@ public class ManageCardsInDeck extends CardActivitySelect {
                 reloadCards();
                 addNoMoreCard();
                 ca.setCardList(cards);
+                getCardAdapterSelect().clearSelected();
                 ca.notifyDataSetChanged();
                 reloading.unlock();
             } catch (InterruptedException e) {
