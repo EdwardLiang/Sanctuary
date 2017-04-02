@@ -19,6 +19,6 @@ tools:context="com.edward.sanctuary.cardactivity.SelectCardForDeck">
 
 </android.support.design.widget.AppBarLayout>
 
-<include layout="@layout/content_select_cards_for_deck" />
+<include layout="@layout/content_select_card_for_deck" />
 </android.support.design.widget.CoordinatorLayout>
 
