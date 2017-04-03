@@ -1,5 +1,6 @@
 package com.edward.sanctuary.cardactivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
@@ -26,7 +27,6 @@ public class SelectCardForDeck extends CardActivity {
         super.onCreate(savedInstanceState);
         setTitle("Select Base Card");
         setupActionBar();
-
     }
 
     public void reloadCards(){
@@ -51,6 +51,8 @@ public class SelectCardForDeck extends CardActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask(this);
+                Intent intent = getIntent();
+                setResult(197);
                 finish();
                 return true;
             default:
@@ -58,5 +60,13 @@ public class SelectCardForDeck extends CardActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(resultCode == 876){
+            setResult(197);
+            finish();
+        }
+
+    }
 
 }

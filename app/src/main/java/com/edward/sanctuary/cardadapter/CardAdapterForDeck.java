@@ -1,5 +1,6 @@
 package com.edward.sanctuary.cardadapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -15,7 +16,6 @@ import java.util.List;
  */
 
 public class CardAdapterForDeck extends CardAdapter {
-
 
     public CardAdapterForDeck(List<Card> cardList, Context context){
         super(cardList, context);
@@ -39,7 +39,7 @@ public class CardAdapterForDeck extends CardAdapter {
                         Intent intent = new Intent(context, SelectCardsForDeck.class);
                         intent.putExtra("Card", (Serializable) card);
                         intent.putExtra("Intent", "AddDeck");
-                        context.startActivity(intent);
+                        ((Activity) context).startActivityForResult(intent, 100);
                     }
                 }
             });

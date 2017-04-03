@@ -24,7 +24,7 @@ public class CardAdapterSelect extends CardAdapter {
     protected SparseBooleanArray selectedItems;
     protected boolean selecting;
     protected boolean first;
-
+    protected OnClickNotSelectListener clickNotSelect;
 
     public CardAdapterSelect(List<Card> cardList, Context context){
         super(cardList, context);
@@ -43,6 +43,10 @@ public class CardAdapterSelect extends CardAdapter {
     public void clearSelected(){
         selectedItems.clear();
         selecting = false;
+    }
+
+    public void setOnClickNotSelectListener(OnClickNotSelectListener click){
+        clickNotSelect = click;
     }
 
     public boolean getSelecting(){
@@ -78,7 +82,9 @@ public class CardAdapterSelect extends CardAdapter {
     protected class CardViewHolderSelect extends CardViewHolder{
 
         public void onClickNotSelect(int pos){
-            //ADD STUFF HERE.
+            if(clickNotSelect != null) {
+                clickNotSelect.onClickNotSelect(cardList.get(pos));
+            }
         }
 
         public CardViewHolderSelect(View itemView) {

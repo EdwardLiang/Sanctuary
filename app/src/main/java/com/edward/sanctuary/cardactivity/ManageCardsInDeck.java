@@ -12,8 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.edward.sanctuary.Card;
+import com.edward.sanctuary.CardDetailActivity;
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.cardadapter.CardAdapterSelect;
+import com.edward.sanctuary.cardadapter.OnClickNotSelectListener;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 
@@ -32,11 +34,15 @@ public class ManageCardsInDeck extends CardActivitySelect {
         //Card before super, since loading requires card.
         card = (Card)getIntent().getSerializableExtra("Card");
         super.onCreate(savedInstanceState);
+        getCardAdapterSelect().setOnClickNotSelectListener(new OnClickNotSelectListener() {
+            @Override
+            public void onClickNotSelect(Card c) {
+                Intent intent = new Intent(ManageCardsInDeck.this, CardDetailActivity.class);
+                intent.putExtra("Card", c);
+                startActivityForResult(intent, 111);
+            }
+        });
 
-        /*if(Session.getInstance(this).darkModeSet()){
-            this.getSupportActionBar().hide();
-            //this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        }*/
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab3);
@@ -117,13 +123,14 @@ public class ManageCardsInDeck extends CardActivitySelect {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 765 && resultCode == 876){
+        if(resultCode == 197 || (requestCode == 765 && resultCode == 876) ){
             try {
                 System.out.println("returned from selecting cards changed");
                 reloading.tryLock(1000, TimeUnit.MILLISECONDS);
                 reloadCards();
                 addNoMoreCard();
                 ca.setCardList(cards);
+                getCardAdapterSelect().clearSelected();
                 ca.notifyDataSetChanged();
                 reloading.unlock();
             } catch (InterruptedException e) {

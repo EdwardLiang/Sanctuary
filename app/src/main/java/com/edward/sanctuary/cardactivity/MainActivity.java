@@ -18,9 +18,11 @@ import android.widget.Toast;
 
 import com.edward.sanctuary.AddCard;
 import com.edward.sanctuary.Card;
+import com.edward.sanctuary.CardDetailActivity;
 import com.edward.sanctuary.LoginActivity;
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.cardadapter.CardAdapterSelect;
+import com.edward.sanctuary.cardadapter.OnClickNotSelectListener;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 import com.edward.sanctuary.settings.SettingsActivity;
@@ -33,6 +35,7 @@ public class MainActivity extends CardActivitySelect
 
     private NavigationView navigationView;
     private List<Card> drawerDecks;
+    private boolean twoPane;
 
     @Override
     protected void doSetContentView(){
@@ -53,10 +56,23 @@ public class MainActivity extends CardActivitySelect
 
         System.out.println("Welcome: " + Session.getInstance(this).getUsername());
 
+        getCardAdapterSelect().setOnClickNotSelectListener(new OnClickNotSelectListener() {
+            @Override
+            public void onClickNotSelect(Card c) {
+                Intent intent = new Intent(MainActivity.this, CardDetailActivity.class);
+                intent.putExtra("Card", c);
+                startActivityForResult(intent,111);
+            }
+        });
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getCardAdapterSelect().clearSelected();
+                if(am != null){
+                    am.finish();
+                }
                 Intent intent = new Intent(view.getContext(), AddCard.class);
                 startActivityForResult(intent, 2301);
             }
@@ -186,7 +202,8 @@ public class MainActivity extends CardActivitySelect
         int id = item.getItemId();
 
         if (id == R.id.nav_add_deck) {
-            startActivity(new Intent(this,SelectCardForDeck.class));
+            Intent intent = new Intent(this,SelectCardForDeck.class);
+            startActivity(intent);
         }
         if (id == R.id.nav_manage_decks) {
             Intent intent = new Intent(this,ManageDecks.class);
@@ -226,6 +243,14 @@ public class MainActivity extends CardActivitySelect
         }
         if(resultCode == 197){
             reloadDecks();
+
+            //RIGHT now this is packed together under the same result code. fix this later.
+            end = false;
+            reloadCards();
+            addNoMoreCard();
+            getCardAdapterSelect().setCardList(cards);
+            getCardAdapterSelect().notifyDataSetChanged();
+
         }
 
     }
