@@ -31,6 +31,7 @@ public class CardDetailFragment extends Fragment {
     private EditText editTitle;
     private String title;
     private boolean changed;
+    private CollapsingToolbarLayout.LayoutParams params;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class CardDetailFragment extends Fragment {
 
             Activity activity = this.getActivity();
             final CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+
             AppBarLayout appbarLayout = (AppBarLayout) activity.findViewById(R.id.app_bar);
             if(Session.getInstance(activity).darkModeSet()) {
                 toolbarLayout.setBackgroundColor(Color.DKGRAY);
@@ -61,6 +63,34 @@ public class CardDetailFragment extends Fragment {
             editTitle.setEnabled(false);
             editTitle.setText(title);
             editTitle.setVisibility(View.VISIBLE);
+            params = new CollapsingToolbarLayout.LayoutParams(
+                    CollapsingToolbarLayout.LayoutParams.MATCH_PARENT, CollapsingToolbarLayout.LayoutParams.MATCH_PARENT);
+            params.setMargins(toolbarLayout.getExpandedTitleMarginStart(),
+                    toolbarLayout.getExpandedTitleMarginTop(), toolbarLayout.getExpandedTitleMarginEnd(),
+                    toolbarLayout.getExpandedTitleMarginBottom() - 30);
+            params.setMarginEnd(toolbarLayout.getExpandedTitleMarginEnd());
+            params.setMarginStart(toolbarLayout.getExpandedTitleMarginStart());
+            //System.out.println(toolbarLayout.getExpandedTitleMarginTop());
+            //System.out.println(params.topMargin);
+            editTitle.setLayoutParams(params);
+            editTitle.setTypeface(toolbarLayout.getExpandedTitleTypeface());
+            editTitle.setGravity(Gravity.BOTTOM);
+
+            if (Build.VERSION.SDK_INT < 23) {
+                editTitle.setTextAppearance(getActivity(), R.style.TextAppearance_Design_CollapsingToolbar_Expanded);
+            } else {
+                editTitle.setTextAppearance(R.style.TextAppearance_Design_CollapsingToolbar_Expanded);
+            }
+            TypedArray theme = getActivity().getTheme().obtainStyledAttributes(new int[] {android.R.attr.editTextColor});
+            try {
+                int color = theme.getColor(0, 0);
+                editTitle.setTextColor(color);
+            }
+            finally
+            {
+                theme.recycle();
+            }
+
             editTitle.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -82,37 +112,9 @@ public class CardDetailFragment extends Fragment {
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                     if(verticalOffset == 0){
-                        CollapsingToolbarLayout.LayoutParams params = new CollapsingToolbarLayout.LayoutParams(
-                                CollapsingToolbarLayout.LayoutParams.MATCH_PARENT, CollapsingToolbarLayout.LayoutParams.MATCH_PARENT);
-                        params.setMargins(toolbarLayout.getExpandedTitleMarginStart(),
-                                toolbarLayout.getExpandedTitleMarginTop(), toolbarLayout.getExpandedTitleMarginEnd(),
-                                toolbarLayout.getExpandedTitleMarginBottom() - 30);
-                        //this 30 is very hacky
-
-                        params.setMarginEnd(toolbarLayout.getExpandedTitleMarginEnd());
-                        params.setMarginStart(toolbarLayout.getExpandedTitleMarginStart());
-                        //System.out.println(toolbarLayout.getExpandedTitleMarginTop());
-                        //System.out.println(params.topMargin);
-                        editTitle.setLayoutParams(params);
-                        editTitle.setGravity(Gravity.BOTTOM);
                         editTitle.setVisibility(View.VISIBLE);
-                        editTitle.setTypeface(toolbarLayout.getExpandedTitleTypeface());
                         toolbarLayout.setTitle("");
                         getActivity().setTitle("");
-                        if (Build.VERSION.SDK_INT < 23) {
-                            editTitle.setTextAppearance(getActivity(), R.style.TextAppearance_Design_CollapsingToolbar_Expanded);
-                        } else {
-                            editTitle.setTextAppearance(R.style.TextAppearance_Design_CollapsingToolbar_Expanded);
-                        }
-                        TypedArray theme = getActivity().getTheme().obtainStyledAttributes(new int[] {android.R.attr.editTextColor});
-                        try {
-                            int color = theme.getColor(0, 0);
-                            editTitle.setTextColor(color);
-                        }
-                        finally
-                        {
-                            theme.recycle();
-                        }
                         toolbarLayout.setTitleEnabled(false);
                     }
                     else{
@@ -151,6 +153,7 @@ public class CardDetailFragment extends Fragment {
     public void saveChangesToDatabase(){
         Database.changeCardName(card, editTitle.getText().toString(), getContext());
         Database.changeCardDescription(card, ed.getText().toString(), getContext());
+        card.setCard_name(editTitle.getText().toString());
         changed = false;
     }
 
