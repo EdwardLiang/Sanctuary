@@ -564,7 +564,7 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
         Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING, selectionArgs);
 
@@ -591,7 +591,7 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        String[] selectionArgs = { Long.toString(userId), Long.toString(car.getCard_id()), "%" + term + "%", term, term + "%", String.valueOf(amount) };
+        String[] selectionArgs = { Long.toString(userId), Long.toString(car.getCard_id()), "%" + term + "%", "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
         Cursor cursor = db.rawQuery(SQLCommands.SQL_CARDS_IN_DECK_QUERY, selectionArgs);
 
@@ -618,7 +618,7 @@ public class Database {
                 CardContract.CardEntry.DESCRIPTION,
                 CardContract.CardEntry.DATE_CREATED
         };
-        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", term, term + "%", String.valueOf(amount) };
+        String[] selectionArgs = { Long.toString(userId), "%" + term + "%", "%" + term + "%", term, term + "%", String.valueOf(amount) };
 
         Cursor cursor = db.rawQuery(SQLCommands.SQL_QUERY_STRING_DECKS, selectionArgs);
 
