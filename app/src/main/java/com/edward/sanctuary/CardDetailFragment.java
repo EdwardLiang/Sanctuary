@@ -137,7 +137,7 @@ public class CardDetailFragment extends Fragment {
         }
     }
     public boolean validTitle(){
-        if(title == card.getCard_name()){
+        if(title.equals(card.getCard_name())){
             return true;
         }
         return Database.newCard(getActivity(), Session.getInstance(getActivity()).getUserId(), editTitle.getText().toString());
