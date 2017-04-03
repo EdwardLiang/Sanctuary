@@ -67,6 +67,45 @@ public class Database {
                 selection,
                 selectionArgs);
     }
+
+    public static void changeCardName(Card c, String newName, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(CardContract.CardEntry.NAME, newName);
+
+// Which row to update, based on the title
+        String selection = CardContract.CardEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(c.getCard_id()) };
+
+        int count = db.update(
+                CardContract.CardEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+    public static void changeCardDescription(Card c, String newDesc, Context context){
+        // New value for one column
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(CardContract.CardEntry.DESCRIPTION, newDesc);
+
+// Which row to update, based on the title
+        String selection = CardContract.CardEntry._ID + " = ?";
+        String[] selectionArgs = { String.valueOf(c.getCard_id()) };
+
+        int count = db.update(
+                CardContract.CardEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+
+
     public static void changePassword(long userId, String password, Context context){
         // New value for one column
         DBHelper dbHelper = DBHelper.getInstance(context);

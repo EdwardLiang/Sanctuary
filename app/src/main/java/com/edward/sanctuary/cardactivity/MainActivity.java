@@ -61,7 +61,7 @@ public class MainActivity extends CardActivitySelect
             public void onClickNotSelect(Card c) {
                 Intent intent = new Intent(MainActivity.this, CardDetailActivity.class);
                 intent.putExtra("Card", c);
-                startActivity(intent);
+                startActivityForResult(intent,111);
             }
         });
 
@@ -243,6 +243,14 @@ public class MainActivity extends CardActivitySelect
         }
         if(resultCode == 197){
             reloadDecks();
+
+            //RIGHT now this is packed together under the same result code. fix this later.
+            end = false;
+            reloadCards();
+            addNoMoreCard();
+            getCardAdapterSelect().setCardList(cards);
+            getCardAdapterSelect().notifyDataSetChanged();
+
         }
 
     }

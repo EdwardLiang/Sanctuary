@@ -26,8 +26,8 @@
         <!--  android:theme="@style/Night" />-->
         <activity
             android:name=".CardDetailActivity"
-            android:label="CardDetailActivity"
             android:theme="@style/Light">
+            <!--android:label="CardDetailActivity"-->
         </activity>
 
 

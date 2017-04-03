@@ -39,7 +39,7 @@ public class ManageCardsInDeck extends CardActivitySelect {
             public void onClickNotSelect(Card c) {
                 Intent intent = new Intent(ManageCardsInDeck.this, CardDetailActivity.class);
                 intent.putExtra("Card", c);
-                startActivity(intent);
+                startActivityForResult(intent, 111);
             }
         });
 
@@ -123,7 +123,7 @@ public class ManageCardsInDeck extends CardActivitySelect {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 765 && resultCode == 876){
+        if(resultCode == 197 || (requestCode == 765 && resultCode == 876) ){
             try {
                 System.out.println("returned from selecting cards changed");
                 reloading.tryLock(1000, TimeUnit.MILLISECONDS);

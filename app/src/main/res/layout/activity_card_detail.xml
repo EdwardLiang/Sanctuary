@@ -22,22 +22,32 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/toolbar">
 
+            <EditText
+                android:id="@+id/title2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@android:color/transparent"
+                android:animateLayoutChanges="false"
+                android:gravity="bottom"
+                android:inputType="text"
+                android:selectAllOnFocus="false"
+                android:text="CardDetailActivity" />
+
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/detail_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/Light" />
+                app:popupTheme="@style/Light"
+                app:title="">
 
+            </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/item_detail_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -50,5 +60,11 @@
         app:layout_anchor="@+id/item_detail_container"
         app:layout_anchorGravity="top|end"
         app:srcCompat="@drawable/ic_edit_black_24dp" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/item_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </android.support.design.widget.CoordinatorLayout>
