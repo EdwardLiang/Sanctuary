@@ -31,7 +31,7 @@ public abstract class CardActivitySelect extends CardActivity {
     @Override
     protected void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
-        message = "Do you want to permanently and completely delete(NOT archive or remove from deck) the selected cards?";
+        message = "Are you sure you want to permanently and completely delete(NOT archive or remove from deck) the selected cards?";
     }
 
     @Override

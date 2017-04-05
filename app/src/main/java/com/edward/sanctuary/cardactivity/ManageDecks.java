@@ -39,7 +39,7 @@ public class ManageDecks extends CardActivitySelect {
         super.onCreate(savedInstanceState);
         setTitle("Manage Decks");
         setupActionBar();
-        setOnDeletePressedMessage("Do you want to PERMANENTLY DELETE the selected title card(s) and ALL cards in the deck(s)?");
+        setOnDeletePressedMessage("Are you sure you want to PERMANENTLY DELETE the selected title card(s) and ALL cards in the deck(s)?");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
