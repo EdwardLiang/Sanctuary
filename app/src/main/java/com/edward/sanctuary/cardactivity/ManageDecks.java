@@ -14,6 +14,7 @@ import android.view.View;
 
 import com.edward.sanctuary.Card;
 import com.edward.sanctuary.R;
+import com.edward.sanctuary.cardadapter.CardAdapterSelect;
 import com.edward.sanctuary.cardadapter.ManageDeckAdapter;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
@@ -38,6 +39,7 @@ public class ManageDecks extends CardActivitySelect {
         super.onCreate(savedInstanceState);
         setTitle("Manage Decks");
         setupActionBar();
+        setOnDeletePressedMessage("Do you want to PERMANENTLY DELETE the selected title card(s) and ALL cards in the deck(s)?");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +57,29 @@ public class ManageDecks extends CardActivitySelect {
             }
         });
 
+    }
+
+    @Override
+    public void onDeletePressed(){
+        List<Card> toDelete = ((CardAdapterSelect)ca).getSelected();
+        int count = 0;
+        for(Card a : toDelete){
+            List<Card> b = Database.getCardsInDeckList(this, Session.getInstance(this).getUserId(), a);
+            for(Card c: b) {
+               count += Database.deleteCard(this, c);
+            }
+            count += Database.deleteCard(this, a);
+        }
+        reloadCards();
+        addNoMoreCard();
+        getCardAdapterSelect().clearSelected();
+        if(am != null){
+            am.finish();
+        }
+        getCardAdapterSelect().setCardList(cards);
+        getCardAdapterSelect().notifyDataSetChanged();
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
+        snackbar.show();
     }
 
     public void reloadCards(){

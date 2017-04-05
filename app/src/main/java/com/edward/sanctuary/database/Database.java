@@ -369,6 +369,27 @@ public class Database {
         }
         return cards;
     }
+    public static List<Card> getCardsInDeckList(Context context, long userId, Card card){
+        // Gets the data repository in write mode
+        List<Card> cards = new ArrayList<Card>();
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] selectionArgs = { String.valueOf(userId), String.valueOf(card.getCard_id()) };
+
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_CARDS_IN_DECK, selectionArgs);
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card c = new Card(name, desc, date, itemId);
+            cards.add(c);
+        }
+        return cards;
+    }
+
     public static List<Card> getCardsInDeckByRandom(Context context, long userId, Card card, int amount, double seed){
         // Gets the data repository in write mode
         List<Card> cards = new ArrayList<Card>();
@@ -667,7 +688,7 @@ public class Database {
         return true;
     }
 
-    public static void deleteCard(Context context, Card card){
+    public static int deleteCard(Context context, Card card){
         DBHelper dbHelper = DBHelper.getInstance(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -676,8 +697,7 @@ public class Database {
         // Specify arguments in placeholder order.
         String[] selectionArgs = { String.valueOf(card.getCard_id()) };
         // Issue SQL statement.
-        db.delete(CardContract.CardEntry.TABLE_NAME, selection, selectionArgs);
-
+        return db.delete(CardContract.CardEntry.TABLE_NAME, selection, selectionArgs);
     }
     public static void deleteCardFromDeck(Context context, Card deck, Card card){
         DBHelper dbHelper = DBHelper.getInstance(context);

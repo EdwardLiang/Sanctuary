@@ -1,12 +1,23 @@
 package com.edward.sanctuary.cardactivity;
 
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.edward.sanctuary.Card;
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.cardadapter.CardAdapterSelect;
+import com.edward.sanctuary.database.Database;
+import com.edward.sanctuary.settings.Session;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by edward on 3/30/17.
@@ -14,10 +25,12 @@ import com.edward.sanctuary.cardadapter.CardAdapterSelect;
 
 public abstract class CardActivitySelect extends CardActivity {
     protected ActionMode am;
+    protected String message;
 
     @Override
     protected void setCardAdapter(){
         ca = new CardAdapterSelect(cards, this);
+        message = "Do you want to permanently and completely(NOT archive or remove from deck) delete the selected cards?";
     }
 
     protected CardAdapterSelect getCardAdapterSelect(){
@@ -58,6 +71,59 @@ public abstract class CardActivitySelect extends CardActivity {
         }
     }
 
+    public void confirmDeleteDialog(){
+        Context con = this;
+        if(Session.getInstance(this).darkModeSet()) {
+            con = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Dialog_Alert);
+        }
+        new AlertDialog.Builder(con)
+                .setTitle("Delete Cards")
+                .setMessage(message)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                            onDeletePressed();
+                            reloading.unlock();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+    }
+
+    public void setOnDeletePressedMessage(String m){
+        message = m;
+    }
+
+    public void onDeletePressed(){
+        List<Card> toDelete = ((CardAdapterSelect)ca).getSelected();
+        int count = 0;
+        for(Card a : toDelete){
+            Database.deleteCard(CardActivitySelect.this, a);
+            count++;
+        }
+        reloadCards();
+        addNoMoreCard();
+        getCardAdapterSelect().clearSelected();
+        if(am != null){
+            am.finish();
+        }
+        getCardAdapterSelect().setCardList(cards);
+        getCardAdapterSelect().notifyDataSetChanged();
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), count + " Cards Deleted", Snackbar.LENGTH_LONG); // Don’t forget to show!
+        snackbar.show();
+    }
+
     public class ActionBarSelect implements ActionMode.Callback {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -73,6 +139,12 @@ public abstract class CardActivitySelect extends CardActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch(item.getItemId()){
+                case R.id.delete:
+                    confirmDeleteDialog();
+                    break;
+            }
+
             return false;
         }
 

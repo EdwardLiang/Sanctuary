@@ -134,6 +134,12 @@ public class MainActivity extends CardActivitySelect
         addDecks(drawerDecks);
     }
 
+    @Override
+    public void onDeletePressed(){
+        super.onDeletePressed();
+        reloadDecks();
+    }
+
     public void addDecks(List<Card> decks){
         SubMenu sm = navigationView.getMenu().findItem(R.id.decks).getSubMenu();
         sm.clear();
