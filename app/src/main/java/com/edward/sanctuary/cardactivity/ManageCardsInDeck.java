@@ -92,12 +92,17 @@ public class ManageCardsInDeck extends CardActivitySelect {
                                 Database.setInDrawer(card, Session.getInstance(ManageCardsInDeck.this).getUserId(), false, ManageCardsInDeck.this);
                                 System.out.println(card.getCard_name() + " set as not deck and not in drawer");
                             }
-                            reloadCards();
-                            addNoMoreCard();
-                            getCardAdapterSelect().clearSelected();
                             if(am != null) {
                                 am.finish();
                             }
+                            if(!Database.cardExists(card.getCard_id(), ManageCardsInDeck.this)){
+                                setResult(197);
+                                finish();
+                            }
+                            card = Database.getCard(card.getCard_id(), ManageCardsInDeck.this);
+                            reloadCards();
+                            addNoMoreCard();
+                            getCardAdapterSelect().clearSelected();
                             ca.setCardList(cards);
                             ca.notifyDataSetChanged();
                             Snackbar snackbar = Snackbar.make(findViewById(R.id.constraintLayout), count + " Cards Removed", Snackbar.LENGTH_LONG); // Don’t forget to show!
@@ -120,6 +125,15 @@ public class ManageCardsInDeck extends CardActivitySelect {
             cards = Database.getCardsInDeckByRandom(this, Session.getInstance(this).getUserId(), card, pagesLoaded*CARDS_PER_PAGE, seed);
         }
     }
+    @Override
+    public void onDeletePressed(){
+        super.onDeletePressed();
+        if(!Database.cardExists(card.getCard_id(), ManageCardsInDeck.this)){
+            System.out.println("Card no longer exists!");
+            setResult(197);
+            finish();
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -127,6 +141,12 @@ public class ManageCardsInDeck extends CardActivitySelect {
             try {
                 System.out.println("returned from selecting cards changed");
                 reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                if(!Database.cardExists(card.getCard_id(), this)){
+                    setResult(197);
+                    finish();
+                }
+                card = Database.getCard(card.getCard_id(), ManageCardsInDeck.this);
+                setTitle("Cards in: " + card.getCard_name());
                 reloadCards();
                 addNoMoreCard();
                 ca.setCardList(cards);

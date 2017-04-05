@@ -348,6 +348,74 @@ public class Database {
         }
         return cards;
     }
+
+    public static Card getCard(long id, Context context){
+        //For when the card is changed
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry._ID + " = ?";
+        String[] selectionArgs = { Long.toString(id) };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name, desc, date, itemId);
+            return card;
+        }
+        return null;
+    }
+
+    public static boolean cardExists(long id, Context context){
+        //For when the card is changed
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry._ID + " = ?";
+        String[] selectionArgs = { Long.toString(id) };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        if(cursor.getCount() > 0){
+            return true;
+        }
+        return false;
+    }
+
     public static HashMap<String, Card> getCardsInDeck(Context context, long userId, Card card){
         // Gets the data repository in write mode
         HashMap<String, Card> cards = new HashMap<String, Card>();
@@ -653,8 +721,6 @@ public class Database {
         }
         return cards;
     }
-
-
 
     public static boolean newCard(Context context, long userId, String name){
         // Gets the data repository in write mode

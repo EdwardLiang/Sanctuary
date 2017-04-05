@@ -3,6 +3,7 @@ package com.edward.sanctuary.cardactivity;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
@@ -28,9 +29,14 @@ public abstract class CardActivitySelect extends CardActivity {
     protected String message;
 
     @Override
+    protected void onCreate(Bundle savedInstance){
+        super.onCreate(savedInstance);
+        message = "Do you want to permanently and completely delete(NOT archive or remove from deck) the selected cards?";
+    }
+
+    @Override
     protected void setCardAdapter(){
         ca = new CardAdapterSelect(cards, this);
-        message = "Do you want to permanently and completely(NOT archive or remove from deck) delete the selected cards?";
     }
 
     protected CardAdapterSelect getCardAdapterSelect(){
