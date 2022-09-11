@@ -1,0 +1,30 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="Orange" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorAccent">@android:color/holo_orange_light</item>
+    </style>
+
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Night" parent="Theme.AppCompat.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Theme.Night.NoActionBar" parent="Theme.AppCompat.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Light" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Theme.Light.Light" parent="Theme.AppCompat.Light" />
+
+    <style name="Light_Actionbar" parent="Theme.Light.Light" />
+
+    <style name="Light_Actionbar2" parent="android:Theme.Material.Light" />
+
+</resources>

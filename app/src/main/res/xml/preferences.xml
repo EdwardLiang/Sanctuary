@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        <CheckBoxPreference android:title="Application Updates"
+            android:defaultValue="false"
+            android:summary="This option if selected will allow the application to check for latest versions."
+            android:key="applicationUpdates" />
+            -->
+    <PreferenceCategory
+        android:title="User interface">
+
+    <CheckBoxPreference
+        android:key="darkmode"
+        android:title="Dark Mode"
+        android:summary="Set user interface to use a dark theme"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Security">
+
+        <CheckBoxPreference
+            android:key="enablesecurity"
+            android:title="Enable Security"
+            android:summary="Select a username and password for login"/>
+        <EditTextPreference android:title="Username"
+            android:key="username"
+            android:summary="Please provide your username"></EditTextPreference>
+        <EditTextPreference android:title="Password"
+            android:key="password"
+            android:summary="Please set your password"
+            android:inputType="textPassword"
+            android:persistent="false"></EditTextPreference>
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
