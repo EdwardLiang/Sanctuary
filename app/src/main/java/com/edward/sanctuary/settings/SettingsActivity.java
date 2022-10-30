@@ -3,8 +3,10 @@ package com.edward.sanctuary.settings;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
+//import android.support.v4.app.NavUtils;
+import androidx.core.app.NavUtils;
+//import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 
 import com.edward.sanctuary.R;

@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Sanctuary</string>
+    <string name="Username">Username</string>
+    <string name="Password">Password</string>
+    <string name="fab">plus</string>
+    <string name="carddetailactivity">Card Detail Activity</string>
+
+
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

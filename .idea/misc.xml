@@ -4,6 +4,26 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/ic_add_black_24dp.xml" value="0.1705" />
+        <entry key="app/src/main/res/layout/activity_add_card.xml" value="0.17135416666666667" />
+        <entry key="app/src/main/res/layout/activity_card_detail.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.24947916666666667" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22395833333333334" />
+        <entry key="app/src/main/res/layout/activity_manage_cards_in_deck.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/activity_manage_decks.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/activity_select_card_for_deck.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/activity_select_cards_for_deck.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.16757246376811594" />
+        <entry key="app/src/main/res/layout/card.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/card_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/card_with_switch.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/content_manage_cards_in_deck.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/content_manage_decks.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/content_select_card_for_deck.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/content_select_cards_for_deck.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/layout/loading.xml" value="0.28532608695652173" />
+        <entry key="app/src/main/res/xml/preferences.xml" value="0.24947916666666667" />
       </map>
     </option>
   </component>
