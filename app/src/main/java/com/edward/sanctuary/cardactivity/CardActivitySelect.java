@@ -135,21 +135,21 @@ public abstract class CardActivitySelect extends CardActivity {
         snackbar.show();
     }
 
-    public class ActionBarSelect implements ActionMode.Callback {
+    public class ActionBarSelect implements androidx.appcompat.view.ActionMode.Callback {
         @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.select_actionbar, menu);
             return true;
         }
 
         @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
             mode.setTitle(getCardAdapterSelect().getSelected().size() + " Selected");
             return false;
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode, MenuItem item) {
             switch(item.getItemId()){
                 //case R.id.deTheme_AppCompat_Dialog_Alertlete:
                 case R.id.delete:
@@ -160,7 +160,7 @@ public abstract class CardActivitySelect extends CardActivity {
         }
 
         @Override
-        public void onDestroyActionMode(ActionMode mode) {
+        public void onDestroyActionMode(androidx.appcompat.view.ActionMode mode) {
             getCardAdapterSelect().clearSelected();
             ca.notifyDataSetChanged();
         }

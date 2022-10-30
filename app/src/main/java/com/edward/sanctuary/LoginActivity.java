@@ -25,7 +25,7 @@ import com.edward.sanctuary.cardactivity.MainActivity;
 import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 
-import static com.edward.sanctuary.R.id.login;
+//import static com.edward.sanctuary.R.id.login;
 
 /**
  * A login screen that offers login via email/password.
@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == login || id == EditorInfo.IME_NULL) {
+                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
                 }

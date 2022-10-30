@@ -71,7 +71,7 @@ public class CardDetailFragment extends Fragment {
                     CollapsingToolbarLayout.LayoutParams.MATCH_PARENT, CollapsingToolbarLayout.LayoutParams.MATCH_PARENT);
             params.setMargins(toolbarLayout.getExpandedTitleMarginStart(),
                     toolbarLayout.getExpandedTitleMarginTop(), toolbarLayout.getExpandedTitleMarginEnd(),
-                    toolbarLayout.getExpandedTitleMarginBottom() - 30);
+                    toolbarLayout.getExpandedTitleMarginBottom()+60);
             params.setMarginEnd(toolbarLayout.getExpandedTitleMarginEnd());
             params.setMarginStart(toolbarLayout.getExpandedTitleMarginStart());
             //System.out.println(toolbarLayout.getExpandedTitleMarginTop());
