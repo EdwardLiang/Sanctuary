@@ -701,7 +701,7 @@ public class Database {
         boolean flag = false;
         boolean flag2 = false;
         String[] tables = new String[3];
-        System.out.println(dump);
+        //System.out.println(dump);
 
         for(int j = 0; j < 3; j++){
             while (true) {
@@ -722,7 +722,7 @@ public class Database {
                     continue;
                 }
                 else if (dump.charAt(i) == '}' && flag == true && flag2 == false) {
-                    System.out.println("this2");
+                    //System.out.println("this2");
                     tables[j] = dump.substring(k, i + 1);
                     k = i + 1;
                     i++;
@@ -733,10 +733,11 @@ public class Database {
                 }
             }
         }
-        System.out.println(tables[0]);
+        /*System.out.println(tables[0]);
         System.out.println(tables[1]);
-        System.out.println(tables[2]);
+        System.out.println(tables[2]);*/
         parseUserContractDump(context, tables[0]);
+        parseCardContractDump(context, tables[1]);
 
         return true;
     }
@@ -746,8 +747,6 @@ public class Database {
 
         String[] selectionArgs = {};
         dump1 = dump1.substring(1, dump1.length() - 1);
-        System.out.println("<this9>");
-        System.out.println(dump1);
         for(int i = 0; i < dump1.length(); i++){
             int j = i;
             int openPlace = 0;
@@ -757,13 +756,17 @@ public class Database {
                     j++;
                 }
             }
+            else if(dump1.charAt(j) == ','){
+                //System.out.println(dump2.charAt(j));
+                continue;
+            }
             String o = dump1.substring(openPlace + 1, j);
-            String[] lines = o.split(",");
-            System.out.println("<this>");
-            System.out.println(Arrays.toString(lines));
+            String[] lines = o.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            //String[] lines = o.split(",");
+            /*System.out.println(Arrays.toString(lines));
             for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
-            }
+            }*/
             lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
             lines[1] = lines[1].substring("QUSERNAMEQ: ".length(), lines[1].length() - 2);
             lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length() - 1);
@@ -771,7 +774,9 @@ public class Database {
             lines[4] = lines[4].substring("QSECURITYENABLEDQ: ".length(), lines[4].length() - 1);
             lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length() - 1);
             lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
-            System.out.println(Arrays.toString(lines));
+
+
+            //System.out.println(Arrays.toString(lines));
 
             ContentValues values = new ContentValues();
             values.put(UserContract.UserEntry._ID, lines[0]);
@@ -796,8 +801,74 @@ public class Database {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String[] selectionArgs = {};
-        Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+        dump2 = dump2.substring(1, dump2.length() - 1);
+        /*System.out.println("<this9>");
+        System.out.println(dump2);*/
+        for(int i = 0; i < dump2.length(); i++){
+            int j = i;
+            int openPlace = 0;
+            if(dump2.charAt(j) == '{'){
+                openPlace = j;
+                while(dump2.charAt(j) != '}'){
+                    j++;
+                }
+            }
+            else if(dump2.charAt(j) == ','){
+                //System.out.println(dump2.charAt(j));
+                continue;
+            }
+            String o = dump2.substring(openPlace + 1, j);
+            //String[] lines = o.split(",");
+           /* System.out.println("test");
+            System.out.println(o);
+            System.out.println("test");*/
+            String[] lines = o.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
+            //System.out.println("<this>");
+            //System.out.println(Arrays.toString(lines));
+            /*for(int k = 0; k < lines.length; k++){
+                System.out.println(lines[k]);
+            }*/
+            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
+            lines[1] = lines[1].substring("QNAMEQ: ".length(), lines[1].length() - 2);
+            lines[2] = lines[2].substring("QDESCRIPTIONQ: ".length(), lines[2].length() - 2);
+            lines[3] = lines[3].substring("QIN_DRAWERQ: ".length(), lines[3].length() - 1);
+            lines[4] = lines[4].substring("QIS_DECKQ: ".length(), lines[4].length() - 1);
+            lines[5] = lines[5].substring("QOWNERQ: ".length(), lines[5].length() - 1);
+            lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
+            //System.out.println(Arrays.toString(lines));
+            /*for(int k = 0; k < lines.length; k++){
+                System.out.println(lines[k]);
+            }*/
+
+
+            ContentValues values = new ContentValues();
+            values.put(CardContract.CardEntry._ID, lines[0]);
+            values.put(CardContract.CardEntry.NAME, lines[1]);
+            values.put(CardContract.CardEntry.DESCRIPTION, lines[2]);
+            values.put(CardContract.CardEntry.IN_DRAWER, lines[3]);
+            values.put(CardContract.CardEntry.IS_DECK, lines[4]);
+            values.put(CardContract.CardEntry.OWNER, lines[5]);
+            values.put(CardContract.CardEntry.DATE_CREATED, lines[6]);
+
+                    /*            "CREATE TABLE " + CardContract.CardEntry.TABLE_NAME + " (" +
+                    CardContract.CardEntry._ID + " INTEGER PRIMARY KEY," +
+                    CardContract.CardEntry.NAME + " STRING UNIQUE," +
+                    CardContract.CardEntry.DESCRIPTION + " STRING," +
+                    CardContract.CardEntry.IN_DRAWER + " INTEGER," +
+                    CardContract.CardEntry.IS_DECK + " INTEGER," +
+                    CardContract.CardEntry.OWNER + " INTEGER," +
+                    CardContract.CardEntry.DATE_CREATED + " LONG, " +
+                    "FOREIGN KEY (" + CardContract.CardEntry.OWNER + ") REFERENCES " +
+                    UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + "))";
+*/
+
+
+            // Insert the new row, returning the primary key value of the new row
+            //long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+
+            i = j;
+        }
         return true;
     }
     public static boolean parseCardCardContractDump(Context context, String dump3){
