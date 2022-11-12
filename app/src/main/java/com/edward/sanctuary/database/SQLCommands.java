@@ -5,6 +5,7 @@ package com.edward.sanctuary.database;
  */
 
 public final class SQLCommands {
+    public static final String SQL_USER_DROP = "DELETE FROM " + UserContract.UserEntry.TABLE_NAME;
     public static final String SQL_CREATE_ENTRIES_USER =
             "CREATE TABLE " + UserContract.UserEntry.TABLE_NAME + " (" +
                     UserContract.UserEntry._ID + " INTEGER PRIMARY KEY," +
@@ -15,6 +16,7 @@ public final class SQLCommands {
                     UserContract.UserEntry.DARK_MODE + " INTEGER," +
                     UserContract.UserEntry.DATE_CREATED + " LONG)";
 
+    public static final String SQL_CARD_DROP = "DELETE FROM " + CardContract.CardEntry.TABLE_NAME;
     public static final String SQL_CREATE_ENTRIES_CARD =
             "CREATE TABLE " + CardContract.CardEntry.TABLE_NAME + " (" +
                     CardContract.CardEntry._ID + " INTEGER PRIMARY KEY," +
@@ -26,6 +28,8 @@ public final class SQLCommands {
                     CardContract.CardEntry.DATE_CREATED + " LONG, " +
                     "FOREIGN KEY (" + CardContract.CardEntry.OWNER + ") REFERENCES " +
                     UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + "))";
+
+    public static final String SQL_CARDCARD_DROP = "DELETE FROM " + CardCardContract.CardCardEntry.TABLE_NAME;
     public static final String SQL_CREATE_ENTRIES_CARD_CARD =
             "CREATE TABLE " + CardCardContract.CardCardEntry.TABLE_NAME + " (" +
                     CardCardContract.CardCardEntry.CARD1 + " INTEGER," +

@@ -738,7 +738,21 @@ public class Database {
         System.out.println(tables[2]);*/
         parseUserContractDump(context, tables[0]);
         parseCardContractDump(context, tables[1]);
+        parseCardCardContractDump(context, tables[2]);
 
+        return true;
+    }
+    public static boolean dropTables(Context context){
+        //FOR USE IN IMPORTING
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] selectionArgs = {};
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_USER_DROP, selectionArgs);
+        cursor = db.rawQuery(SQLCommands.SQL_CARD_DROP, selectionArgs);
+        cursor = db.rawQuery(SQLCommands.SQL_CARDCARD_DROP, selectionArgs);
+
+        cursor.close();
         return true;
     }
     public static boolean parseUserContractDump(Context context, String dump1){
@@ -767,13 +781,17 @@ public class Database {
             for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
             }*/
-            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
-            lines[1] = lines[1].substring("QUSERNAMEQ: ".length(), lines[1].length() - 2);
-            lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length() - 1);
-            lines[3] = lines[3].substring("QSALTQ: ".length(), lines[3].length() - 1);
-            lines[4] = lines[4].substring("QSECURITYENABLEDQ: ".length(), lines[4].length() - 1);
-            lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length() - 1);
+            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length());
+            lines[1] = lines[1].substring("QUSERNAMEQ: Q".length(), lines[1].length() - 1);
+            lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length());
+            lines[3] = lines[3].substring("QSALTQ: ".length(), lines[3].length());
+            lines[4] = lines[4].substring("QSECURITY_ENABLEDQ: ".length(), lines[4].length());
+            lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length());
             lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
+
+            /*for(int k = 0; k < lines.length; k++){
+                System.out.println(lines[k]);
+            }*/
 
 
             //System.out.println(Arrays.toString(lines));
@@ -788,7 +806,7 @@ public class Database {
             values.put(UserContract.UserEntry.DATE_CREATED, lines[6]);
 
             // Insert the new row, returning the primary key value of the new row
-           //long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+            long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
 
             i = j;
         }
@@ -829,15 +847,15 @@ public class Database {
             /*for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
             }*/
-            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
-            lines[1] = lines[1].substring("QNAMEQ: ".length(), lines[1].length() - 2);
-            lines[2] = lines[2].substring("QDESCRIPTIONQ: ".length(), lines[2].length() - 2);
-            lines[3] = lines[3].substring("QIN_DRAWERQ: ".length(), lines[3].length() - 1);
-            lines[4] = lines[4].substring("QIS_DECKQ: ".length(), lines[4].length() - 1);
-            lines[5] = lines[5].substring("QOWNERQ: ".length(), lines[5].length() - 1);
+            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length());
+            lines[1] = lines[1].substring("QNAMEQ: Q".length(), lines[1].length() - 1);
+            lines[2] = lines[2].substring("QDESCRIPTIONQ: Q".length(), lines[2].length() - 1);
+            lines[3] = lines[3].substring("QIN_DRAWERQ: ".length(), lines[3].length());
+            lines[4] = lines[4].substring("QIS_DECKQ: ".length(), lines[4].length());
+            lines[5] = lines[5].substring("QOWNERQ: ".length(), lines[5].length());
             lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
             //System.out.println(Arrays.toString(lines));
-            /*for(int k = 0; k < lines.length; k++){
+           /* for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
             }*/
 
@@ -865,7 +883,7 @@ public class Database {
 
 
             // Insert the new row, returning the primary key value of the new row
-            //long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+            long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
 
             i = j;
         }
@@ -876,8 +894,71 @@ public class Database {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String[] selectionArgs = {};
-        Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+        dump3 = dump3.substring(1, dump3.length() - 1);
+        /*System.out.println("<this9>");
+        System.out.println(dump2);*/
+        for(int i = 0; i < dump3.length(); i++){
+            int j = i;
+            int openPlace = 0;
+            if(dump3.charAt(j) == '{'){
+                openPlace = j;
+                while(dump3.charAt(j) != '}'){
+                    j++;
+                }
+            }
+            else if(dump3.charAt(j) == ','){
+                //System.out.println(dump2.charAt(j));
+                continue;
+            }
+            String o = dump3.substring(openPlace + 1, j);
+            //String[] lines = o.split(",");
+           /* System.out.println("test");
+            System.out.println(o);
+            System.out.println("test");*/
+            String[] lines = o.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
+            //System.out.println("<this>");
+            //System.out.println(Arrays.toString(lines));
+           /* for(int k = 0; k < lines.length; k++){
+                System.out.println(lines[k]);
+            }*/
+            lines[0] = lines[0].substring("QCARD1Q: ".length(), lines[0].length());
+            lines[1] = lines[1].substring("QCARD2Q: ".length(), lines[1].length());
+            lines[2] = lines[2].substring("QOWNERQ: ".length(), lines[2].length());
+            lines[3] = lines[3].substring("QDATE_CREATEDQ: ".length(), lines[3].length());
+            //System.out.println(Arrays.toString(lines));
+         /*   for(int k = 0; k < lines.length; k++){
+                //System.out.println("k: " + k);
+                System.out.println(lines[k]);
+            }*/
+
+
+            ContentValues values = new ContentValues();
+            values.put(CardCardContract.CardCardEntry.CARD1, lines[0]);
+            values.put(CardCardContract.CardCardEntry.CARD2, lines[1]);
+            values.put(CardCardContract.CardCardEntry.OWNER, lines[2]);
+            values.put(CardCardContract.CardCardEntry.DATE_CREATED, lines[3]);
+
+                   /* "CREATE TABLE " + CardCardContract.CardCardEntry.TABLE_NAME + " (" +
+                CardCardContract.CardCardEntry.CARD1 + " INTEGER," +
+                CardCardContract.CardCardEntry.CARD2 + " INTEGER," +
+                CardCardContract.CardCardEntry.OWNER + " INTEGER," +
+                CardCardContract.CardCardEntry.DATE_CREATED + " LONG, " +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.OWNER + ") REFERENCES " +
+                UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + ")," +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD1 + ") REFERENCES " +
+                CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD2 + ") REFERENCES " +
+                CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                "PRIMARY KEY(" + CardCardContract.CardCardEntry.CARD1 + ", " +
+                CardCardContract.CardCardEntry.CARD2 + "))";*/
+
+
+            // Insert the new row, returning the primary key value of the new row
+            long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+
+            i = j;
+        }
         return true;
     }
 
