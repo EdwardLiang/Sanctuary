@@ -118,14 +118,14 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                     Intent resultData){
-        System.out.println("returned from files\n\n\n\n\n");
         if(requestCode == SettingsFragment.PICK_TXT_FILE &&
                 resultCode == Activity.RESULT_OK){
             Uri uri = null;
             if(resultData != null){
                 uri = resultData.getData();
                 try {
-                    readTextFromUri(uri);
+                    String readin = readTextFromUri(uri);
+                    Database.parseDump(getActivity(), readin);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -143,7 +143,6 @@ public class SettingsFragment extends PreferenceFragment {
         while ((line = reader.readLine()) != null) {
             stringBuilder.append(line);
         }
-        System.out.println(stringBuilder.toString());
         return stringBuilder.toString();
     }
 

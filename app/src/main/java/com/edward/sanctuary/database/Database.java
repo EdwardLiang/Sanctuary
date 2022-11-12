@@ -696,6 +696,47 @@ public class Database {
     }
 
     public static boolean parseDump(Context context, String dump){
+        int i = 0;
+        int k = 0;
+        boolean flag = false;
+        boolean flag2 = false;
+        String[] tables = new String[3];
+        System.out.println(dump);
+
+        for(int j = 0; j < 3; j++){
+            while (true) {
+                //System.out.println(i);
+                if (dump.charAt(i) == '{' && flag == false) {
+                    flag = true;
+                    i++;
+                    continue;
+                }
+                else if (dump.charAt(i) == '{' && flag == true) {
+                    flag2 = true;
+                    i++;
+                    continue;
+                }
+                else if (dump.charAt(i) == '}' && flag == true && flag2 == true) {
+                    flag2 = false;
+                    i++;
+                    continue;
+                }
+                else if (dump.charAt(i) == '}' && flag == true && flag2 == false) {
+                    System.out.println("this2");
+                    tables[j] = dump.substring(k, i + 1);
+                    k = i + 1;
+                    i++;
+                    break;
+                }
+                else{
+                    i++;
+                }
+            }
+        }
+        System.out.println(tables[0]);
+        System.out.println(tables[1]);
+        System.out.println(tables[2]);
+        parseUserContractDump(context, tables[0]);
 
         return true;
     }
@@ -705,25 +746,32 @@ public class Database {
 
         String[] selectionArgs = {};
         dump1 = dump1.substring(1, dump1.length() - 1);
+        System.out.println("<this9>");
+        System.out.println(dump1);
         for(int i = 0; i < dump1.length(); i++){
             int j = i;
             int openPlace = 0;
             if(dump1.charAt(j) == '{'){
                 openPlace = j;
-                while(j != '}'){
+                while(dump1.charAt(j) != '}'){
                     j++;
                 }
             }
             String o = dump1.substring(openPlace + 1, j);
-            String[] lines = o.split(",\n");
+            String[] lines = o.split(",");
+            System.out.println("<this>");
+            System.out.println(Arrays.toString(lines));
+            for(int k = 0; k < lines.length; k++){
+                System.out.println(lines[k]);
+            }
             lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
             lines[1] = lines[1].substring("QUSERNAMEQ: ".length(), lines[1].length() - 2);
             lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length() - 1);
             lines[3] = lines[3].substring("QSALTQ: ".length(), lines[3].length() - 1);
             lines[4] = lines[4].substring("QSECURITYENABLEDQ: ".length(), lines[4].length() - 1);
             lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length() - 1);
-            lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length() - 1);
-            System.out.println(lines);
+            lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
+            System.out.println(Arrays.toString(lines));
 
             ContentValues values = new ContentValues();
             values.put(UserContract.UserEntry._ID, lines[0]);
