@@ -38,7 +38,11 @@
         android:title="Other">
         <Preference android:title="Export Database"
             android:key="export"
-            android:summary="Export Database to file."></Preference>
+            android:summary="Export database to file."></Preference>
+        <Preference android:title="Import JSON"
+            android:key="import"
+            android:summary="Import JSON to database."></Preference>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

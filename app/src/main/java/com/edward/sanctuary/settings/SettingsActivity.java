@@ -1,6 +1,8 @@
 package com.edward.sanctuary.settings;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 //import android.support.v4.app.NavUtils;
@@ -8,8 +10,15 @@ import androidx.core.app.NavUtils;
 //import android.support.v7.app.ActionBar;
 import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
+import android.content.Intent;
 
 import com.edward.sanctuary.R;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Objects;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -65,7 +74,4 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
-
 }

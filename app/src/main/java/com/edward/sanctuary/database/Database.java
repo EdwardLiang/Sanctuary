@@ -694,6 +694,74 @@ public class Database {
         }
         return cards;
     }
+
+    public static boolean parseDump(Context context, String dump){
+
+        return true;
+    }
+    public static boolean parseUserContractDump(Context context, String dump1){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] selectionArgs = {};
+        dump1 = dump1.substring(1, dump1.length() - 1);
+        for(int i = 0; i < dump1.length(); i++){
+            int j = i;
+            int openPlace = 0;
+            if(dump1.charAt(j) == '{'){
+                openPlace = j;
+                while(j != '}'){
+                    j++;
+                }
+            }
+            String o = dump1.substring(openPlace + 1, j);
+            String[] lines = o.split(",\n");
+            lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length() - 1);
+            lines[1] = lines[1].substring("QUSERNAMEQ: ".length(), lines[1].length() - 2);
+            lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length() - 1);
+            lines[3] = lines[3].substring("QSALTQ: ".length(), lines[3].length() - 1);
+            lines[4] = lines[4].substring("QSECURITYENABLEDQ: ".length(), lines[4].length() - 1);
+            lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length() - 1);
+            lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length() - 1);
+            System.out.println(lines);
+
+            ContentValues values = new ContentValues();
+            values.put(UserContract.UserEntry._ID, lines[0]);
+            values.put(UserContract.UserEntry.USERNAME, lines[1]);
+            values.put(UserContract.UserEntry.PASSWORD_HASH, lines[2]);
+            values.put(UserContract.UserEntry.SALT, lines[3]);
+            values.put(UserContract.UserEntry.SECURITY_ENABLED, lines[4]);
+            values.put(UserContract.UserEntry.DARK_MODE, lines[5]);
+            values.put(UserContract.UserEntry.DATE_CREATED, lines[6]);
+
+            // Insert the new row, returning the primary key value of the new row
+           //long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+
+            i = j;
+        }
+        //Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+
+        return true;
+    }
+    public static boolean parseCardContractDump(Context context, String dump2){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] selectionArgs = {};
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+
+        return true;
+    }
+    public static boolean parseCardCardContractDump(Context context, String dump3){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] selectionArgs = {};
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+
+        return true;
+    }
+
     public static String getDump(Context context){
         DBHelper dbHelper = DBHelper.getInstance(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -803,6 +871,7 @@ public class Database {
         String dump2 = cursor.toString();
         cursor = db.rawQuery(SQLCommands.SQL_DUMP3, selectionArgs);
         String dump3 = cursor.toString();*/
+        cursor.close();
         return JSON1 + "\n\n" + JSON2 + "\n\n" + JSON3;
     }
 
