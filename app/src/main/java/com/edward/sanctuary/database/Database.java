@@ -694,6 +694,117 @@ public class Database {
         }
         return cards;
     }
+    public static String getDump(Context context){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] selectionArgs = {};
+        Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
+        String JSON1 = "{";
+        while(cursor.moveToNext()) {
+            int id1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry._ID));
+            String us1 = cursor.getString(cursor.getColumnIndex(UserContract.UserEntry.USERNAME));
+            byte[] pass1 = cursor.getBlob(cursor.getColumnIndex(UserContract.UserEntry.PASSWORD_HASH));
+            byte[] salt1 = cursor.getBlob(cursor.getColumnIndex(UserContract.UserEntry.SALT));
+            int sec1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.SECURITY_ENABLED));
+            int dark1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.DARK_MODE));
+            long date1 = cursor.getLong(cursor.getColumnIndex(UserContract.UserEntry.DATE_CREATED));
+            JSON1 += "\n{\"_ID\"" + ": " + id1 + ",\n" +
+                "\"USERNAME\"" + ": " + "\"" + us1 + "\",\n" +
+                "\"PASSWORD_HASH\"" + ": " + pass1 + ",\n" +
+                "\"SALT\"" + ": " + salt1 + ",\n" +
+                "\"SECURITY_ENABLED\"" + ": " + sec1 + ",\n" +
+                "\"DARK_MODE\"" + ": " + dark1 + ",\n" +
+                "\"DATE_CREATED\"" + ": " + date1 + "\n},";
+        }
+        JSON1 = JSON1.substring(0,JSON1.length()-1);
+        JSON1 += "}";
+
+        cursor.moveToFirst();
+        cursor = db.rawQuery(SQLCommands.SQL_DUMP2, selectionArgs);
+        String JSON2 = "{";
+        while(cursor.moveToNext()) {
+            int id2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry._ID));
+            String name2 = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String description2 = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            int in_drawer2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.IN_DRAWER));
+            int is_deck2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.IS_DECK));
+            int owner2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.OWNER));
+            long date_created2 = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            JSON2 += "\n{\"_ID\"" + ": " + id2 + ",\n" +
+                    "\"NAME\"" + ": " + "\"" + name2 + "\",\n" +
+                    "\"DESCRIPTION\"" + ": \"" + description2 + "\",\n" +
+                    "\"IN_DRAWER\"" + ": " + in_drawer2 + ",\n" +
+                    "\"IS_DECK\"" + ": " + is_deck2 + ",\n" +
+                    "\"OWNER\"" + ": " + owner2 + ",\n" +
+                    "\"DATE_CREATED\"" + ": " + date_created2 + "\n},";
+        }
+        JSON2 = JSON2.substring(0,JSON2.length()-1);
+        JSON2 += "}";
+
+        cursor = db.rawQuery(SQLCommands.SQL_DUMP3, selectionArgs);
+        cursor.moveToFirst();
+        String JSON3 = "{";
+        while(cursor.moveToNext()) {
+            int card1 = cursor.getInt(cursor.getColumnIndex(CardCardContract.CardCardEntry.CARD1));
+            int card2 = cursor.getInt(cursor.getColumnIndex(CardCardContract.CardCardEntry.CARD2));
+            int owner3 = cursor.getInt(cursor.getColumnIndex(CardCardContract.CardCardEntry.OWNER));
+            long date_created3 = cursor.getLong(cursor.getColumnIndex(CardCardContract.CardCardEntry.DATE_CREATED));
+
+            JSON3 += "\n{\"CARD1\"" + ": " + card1 + ",\n" +
+                    "\"CARD2\"" + ": " + card2 + ",\n" +
+                    "\"OWNER\"" + ": " + owner3 + ",\n" +
+                    "\"DATE_CREATED\"" + ": " + date_created3 + "\n},";
+        }
+        JSON3 = JSON3.substring(0,JSON3.length()-1);
+        JSON3 += "}";
+
+
+       /* "CREATE TABLE " + CardCardContract.CardCardEntry.TABLE_NAME + " (" +
+                CardCardContract.CardCardEntry.CARD1 + " INTEGER," +
+                CardCardContract.CardCardEntry.CARD2 + " INTEGER," +
+                CardCardContract.CardCardEntry.OWNER + " INTEGER," +
+                CardCardContract.CardCardEntry.DATE_CREATED + " LONG, " +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.OWNER + ") REFERENCES " +
+                UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + ")," +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD1 + ") REFERENCES " +
+                CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                "FOREIGN KEY (" + CardCardContract.CardCardEntry.CARD2 + ") REFERENCES " +
+                CardContract.CardEntry.TABLE_NAME + "(" + CardContract.CardEntry._ID + ") ON DELETE CASCADE," +
+                "PRIMARY KEY(" + CardCardContract.CardCardEntry.CARD1 + ", " +
+                CardCardContract.CardCardEntry.CARD2 + "))";*/
+
+
+        /*            "CREATE TABLE " + CardContract.CardEntry.TABLE_NAME + " (" +
+                    CardContract.CardEntry._ID + " INTEGER PRIMARY KEY," +
+                    CardContract.CardEntry.NAME + " STRING UNIQUE," +
+                    CardContract.CardEntry.DESCRIPTION + " STRING," +
+                    CardContract.CardEntry.IN_DRAWER + " INTEGER," +
+                    CardContract.CardEntry.IS_DECK + " INTEGER," +
+                    CardContract.CardEntry.OWNER + " INTEGER," +
+                    CardContract.CardEntry.DATE_CREATED + " LONG, " +
+                    "FOREIGN KEY (" + CardContract.CardEntry.OWNER + ") REFERENCES " +
+                    UserContract.UserEntry.TABLE_NAME + "(" + UserContract.UserEntry._ID + "))";
+*/
+
+
+
+        /*"CREATE TABLE " + UserContract.UserEntry.TABLE_NAME + " (" +
+                UserContract.UserEntry._ID + " INTEGER PRIMARY KEY," +
+                UserContract.UserEntry.USERNAME + " STRING UNIQUE," +
+                UserContract.UserEntry.PASSWORD_HASH + " BLOB," +
+                UserContract.UserEntry.SALT + " BLOB," +
+                UserContract.UserEntry.SECURITY_ENABLED + " INTEGER," +
+                UserContract.UserEntry.DARK_MODE + " INTEGER," +
+                UserContract.UserEntry.DATE_CREATED + " LONG)";*/
+
+        //String dump1 = cursor.
+        /*cursor = db.rawQuery(SQLCommands.SQL_DUMP2, selectionArgs);
+        String dump2 = cursor.toString();
+        cursor = db.rawQuery(SQLCommands.SQL_DUMP3, selectionArgs);
+        String dump3 = cursor.toString();*/
+        return JSON1 + "\n\n" + JSON2 + "\n\n" + JSON3;
+    }
 
     public static List<Card> getDecksSearch(Context context, String term, long userId, int amount){
         // Gets the data repository in write mode

@@ -34,5 +34,11 @@
 
 
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Other">
+        <Preference android:title="Export Database"
+            android:key="export"
+            android:summary="Export Database to file."></Preference>
+    </PreferenceCategory>
 
 </PreferenceScreen>

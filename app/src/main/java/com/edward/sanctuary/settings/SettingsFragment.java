@@ -6,6 +6,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
+import android.content.Intent;
 
 import com.edward.sanctuary.R;
 import com.edward.sanctuary.database.Database;
@@ -74,6 +75,24 @@ public class SettingsFragment extends PreferenceFragment {
         boolean secEnabled = sharedPreferences.getBoolean("enablesecurity", false);
         getPreferenceScreen().findPreference("username").setEnabled(secEnabled);
         getPreferenceScreen().findPreference("password").setEnabled(secEnabled);
+
+        getPreferenceScreen().findPreference("export").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                String dbDump = Database.getDump(getActivity());
+                System.out.println("DATABASE DUMP");
+                System.out.println(dbDump);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, dbDump);
+                sendIntent.setType("text/plain");
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                startActivity(shareIntent);
+                return true;
+            }
+        });
+
 
     }
 }
