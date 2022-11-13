@@ -7,9 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.edward.sanctuary.Card;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -748,11 +752,12 @@ public class Database {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String[] selectionArgs = {};
-        Cursor cursor = db.rawQuery(SQLCommands.SQL_USER_DROP, selectionArgs);
-        cursor = db.rawQuery(SQLCommands.SQL_CARD_DROP, selectionArgs);
-        cursor = db.rawQuery(SQLCommands.SQL_CARDCARD_DROP, selectionArgs);
+        db.execSQL(SQLCommands.SQL_CARDCARD_DROP);
+        db.execSQL(SQLCommands.SQL_CARD_DROP);
+        db.execSQL(SQLCommands.SQL_USER_DROP);
+        //cursor = db.rawQuery(SQLCommands.SQL_CARD_DROP, selectionArgs);
+        //cursor = db.rawQuery(SQLCommands.SQL_CARDCARD_DROP, selectionArgs);
 
-        cursor.close();
         return true;
     }
     public static boolean parseUserContractDump(Context context, String dump1){
@@ -766,7 +771,7 @@ public class Database {
             int openPlace = 0;
             if(dump1.charAt(j) == '{'){
                 openPlace = j;
-                while(dump1.charAt(j) != '}'){
+                while(dump1.charAt(j) != '}' || (j > 0 && dump1.charAt(j) == '}' && dump1.charAt(j - 1) == '\\')){
                     j++;
                 }
             }
@@ -774,36 +779,124 @@ public class Database {
                 //System.out.println(dump2.charAt(j));
                 continue;
             }
+
+            /*if(dump1.charAt(j) == '{'){
+                openPlace = j;
+                while(dump1.charAt(j) != '}'){
+                    j++;
+                }
+            }
+            else if(dump1.charAt(j) == ','){
+                //System.out.println(dump2.charAt(j));
+                continue;
+            }*/
             String o = dump1.substring(openPlace + 1, j);
+            //System.out.println(o);
+
+            //https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
             String[] lines = o.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
             //String[] lines = o.split(",");
-            /*System.out.println(Arrays.toString(lines));
+           /* System.out.println(Arrays.toString(lines));
             for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
             }*/
             lines[0] = lines[0].substring("Q_IDQ: ".length(), lines[0].length());
             lines[1] = lines[1].substring("QUSERNAMEQ: Q".length(), lines[1].length() - 1);
-            lines[2] = lines[2].substring("QPASSWORD_HASHQ: ".length(), lines[2].length());
-            lines[3] = lines[3].substring("QSALTQ: ".length(), lines[3].length());
+            lines[2] = lines[2].substring("QPASSWORD_HASHQ: Q".length(), lines[2].length() - 1);
+            lines[3] = lines[3].substring("QSALTQ: Q".length(), lines[3].length() - 1);
             lines[4] = lines[4].substring("QSECURITY_ENABLEDQ: ".length(), lines[4].length());
             lines[5] = lines[5].substring("QDARK_MODEQ: ".length(), lines[5].length());
             lines[6] = lines[6].substring("QDATE_CREATEDQ: ".length(), lines[6].length());
 
-            /*for(int k = 0; k < lines.length; k++){
+           for(int k = 0; k < lines.length; k++){
                 System.out.println(lines[k]);
-            }*/
+            }
 
 
             //System.out.println(Arrays.toString(lines));
 
+            //https://stackoverflow.com/questions/4299111/convert-long-to-byte-array-and-add-it-to-another-array
+            //byte[] hash1 = ByteBuffer.allocate(Long.BYTES).putLong(Long.parseLong(lines[2])).array();
+            //byte[] salt1 = ByteBuffer.allocate(Long.BYTES).putLong(Long.parseLong(lines[3])).array();
+            //System.out.println(hash1);
+            //System.out.println(salt1);
+            //1111110011101100011001011010
+            //0101101110111101100011001110
+
+          //  int val = Integer.parseInt(lines[2], 16);
+           // BigInteger big = BigInteger.valueOf(val);
+           // System.out.println("Hexadecimal String : " + lines[2]);
+            //System.out.println("Big String : " + big);
+            //byte[] pass1 = big.toByteArray();
+            /*byte[] pass11 = new byte[lines[2].length()];
+            boolean negative = false;
+            boolean negative2 = false;
+
+            for(int p = 0; p < lines[2].length(); p++){
+                //System.out.println(Integer.parseInt(lines[2].charAt(p) + "", 16));
+                if(lines[2].charAt(p) == '-'){
+                    negative = true;
+                }
+                Integer inter = Integer.parseInt(lines[2].charAt(p) + "", 16);
+                pass11[p] = inter.byteValue();
+                //System.out.println(inter.byteValue());
+            }
+            byte[] salt11 = new byte[lines[3].length()];
+            for(int p = 0; p < lines[3].length(); p++){
+                //System.out.println(Integer.parseInt(lines[2].charAt(p) + "", 16));
+                if(lines[2].charAt(p) == '-'){
+                    negative2 = true;
+                }
+                Integer inter = Integer.parseInt(lines[3].charAt(p) + "", 16);
+                salt11[p] = inter.byteValue();
+                //System.out.println(inter.byteValue());
+            }*/
+
+            /*for(int p = 0; p < pass11.length; p++) {
+                System.out.println(pass11[p]);
+            }*/
+            //System.out.println("Hexadecimal String After: " + pass1);
+            BigInteger pass11 = new BigInteger(lines[2], 16);
+            BigInteger salt11 = new BigInteger(lines[3], 16);
+            //System.out.println("Hexadecimal String After2: " + pass11.toString(16));
+            //System.out.println("Salt String After2: " + salt11.toString(16));
+
+            byte[] pass111 = pass11.toByteArray();
+            byte[] salt111 = salt11.toByteArray();
+
+            /*Integer val = Integer.parseInt(lines[2], 16);
+            BigInteger big = BigInteger.valueOf(val);
+            byte[] pass1 = big.toByteArray();*/
+
+            /*Integer val2 = Integer.parseInt(lines[3], 16);
+            BigInteger big2 = BigInteger.valueOf(val2);
+            byte[] salt1 = big2.toByteArray();
+            System.out.println("Salt String After2: " + new BigInteger(salt1).toString(16));
+*/
+
             ContentValues values = new ContentValues();
-            values.put(UserContract.UserEntry._ID, lines[0]);
+            values.put(UserContract.UserEntry._ID, Integer.parseInt(lines[0]));
             values.put(UserContract.UserEntry.USERNAME, lines[1]);
-            values.put(UserContract.UserEntry.PASSWORD_HASH, lines[2]);
-            values.put(UserContract.UserEntry.SALT, lines[3]);
-            values.put(UserContract.UserEntry.SECURITY_ENABLED, lines[4]);
-            values.put(UserContract.UserEntry.DARK_MODE, lines[5]);
-            values.put(UserContract.UserEntry.DATE_CREATED, lines[6]);
+            //values.put(UserContract.UserEntry.PASSWORD_HASH, lines[2].getBytes());
+            //values.put(UserContract.UserEntry.SALT, lines[3].getBytes());
+            values.put(UserContract.UserEntry.PASSWORD_HASH, pass111);
+            values.put(UserContract.UserEntry.SALT, salt111);
+            values.put(UserContract.UserEntry.SECURITY_ENABLED, Integer.parseInt(lines[4]));
+            values.put(UserContract.UserEntry.DARK_MODE, Integer.parseInt(lines[5]));
+            values.put(UserContract.UserEntry.DATE_CREATED, Long.parseLong(lines[6]));
+
+         /*   System.out.println("dump: ");
+            System.out.println(lines[2]);
+            System.out.println(lines[3]);*/
+
+             /*"CREATE TABLE " + UserContract.UserEntry.TABLE_NAME + " (" +
+                UserContract.UserEntry._ID + " INTEGER PRIMARY KEY," +
+                UserContract.UserEntry.USERNAME + " STRING UNIQUE," +
+                UserContract.UserEntry.PASSWORD_HASH + " BLOB," +
+                UserContract.UserEntry.SALT + " BLOB," +
+                UserContract.UserEntry.SECURITY_ENABLED + " INTEGER," +
+                UserContract.UserEntry.DARK_MODE + " INTEGER," +
+                UserContract.UserEntry.DATE_CREATED + " LONG)";*/
 
             // Insert the new row, returning the primary key value of the new row
             long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
@@ -823,11 +916,13 @@ public class Database {
         /*System.out.println("<this9>");
         System.out.println(dump2);*/
         for(int i = 0; i < dump2.length(); i++){
+            System.out.println(i);
             int j = i;
             int openPlace = 0;
+
             if(dump2.charAt(j) == '{'){
                 openPlace = j;
-                while(dump2.charAt(j) != '}'){
+                while(dump2.charAt(j) != '}' || (j > 0 && dump2.charAt(j) == '}' && dump2.charAt(j - 1) == '\\')){
                     j++;
                 }
             }
@@ -835,7 +930,15 @@ public class Database {
                 //System.out.println(dump2.charAt(j));
                 continue;
             }
+/*
+            if(dump2.charAt(j) == '{'){
+                openPlace = j;
+                while(dump2.charAt(j) != '}'){
+                    j++;
+                }
+            }*/
             String o = dump2.substring(openPlace + 1, j);
+            System.out.println(o);
             //String[] lines = o.split(",");
            /* System.out.println("test");
             System.out.println(o);
@@ -861,13 +964,13 @@ public class Database {
 
 
             ContentValues values = new ContentValues();
-            values.put(CardContract.CardEntry._ID, lines[0]);
+            values.put(CardContract.CardEntry._ID, Integer.parseInt(lines[0]));
             values.put(CardContract.CardEntry.NAME, lines[1]);
             values.put(CardContract.CardEntry.DESCRIPTION, lines[2]);
-            values.put(CardContract.CardEntry.IN_DRAWER, lines[3]);
-            values.put(CardContract.CardEntry.IS_DECK, lines[4]);
-            values.put(CardContract.CardEntry.OWNER, lines[5]);
-            values.put(CardContract.CardEntry.DATE_CREATED, lines[6]);
+            values.put(CardContract.CardEntry.IN_DRAWER, Integer.parseInt(lines[3]));
+            values.put(CardContract.CardEntry.IS_DECK, Integer.parseInt(lines[4]));
+            values.put(CardContract.CardEntry.OWNER, Integer.parseInt(lines[5]));
+            values.put(CardContract.CardEntry.DATE_CREATED, Long.parseLong(lines[6]));
 
                     /*            "CREATE TABLE " + CardContract.CardEntry.TABLE_NAME + " (" +
                     CardContract.CardEntry._ID + " INTEGER PRIMARY KEY," +
@@ -883,7 +986,7 @@ public class Database {
 
 
             // Insert the new row, returning the primary key value of the new row
-            long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+            long newRowId = db.insert(CardContract.CardEntry.TABLE_NAME, null, values);
 
             i = j;
         }
@@ -902,7 +1005,7 @@ public class Database {
             int openPlace = 0;
             if(dump3.charAt(j) == '{'){
                 openPlace = j;
-                while(dump3.charAt(j) != '}'){
+                while(dump3.charAt(j) != '}' || (j > 0 && dump3.charAt(j) == '}' && dump3.charAt(j - 1) == '\\')){
                     j++;
                 }
             }
@@ -934,10 +1037,10 @@ public class Database {
 
 
             ContentValues values = new ContentValues();
-            values.put(CardCardContract.CardCardEntry.CARD1, lines[0]);
-            values.put(CardCardContract.CardCardEntry.CARD2, lines[1]);
-            values.put(CardCardContract.CardCardEntry.OWNER, lines[2]);
-            values.put(CardCardContract.CardCardEntry.DATE_CREATED, lines[3]);
+            values.put(CardCardContract.CardCardEntry.CARD1, Integer.parseInt(lines[0]));
+            values.put(CardCardContract.CardCardEntry.CARD2, Integer.parseInt(lines[1]));
+            values.put(CardCardContract.CardCardEntry.OWNER, Integer.parseInt(lines[2]));
+            values.put(CardCardContract.CardCardEntry.DATE_CREATED, Long.parseLong(lines[3]));
 
                    /* "CREATE TABLE " + CardCardContract.CardCardEntry.TABLE_NAME + " (" +
                 CardCardContract.CardCardEntry.CARD1 + " INTEGER," +
@@ -953,34 +1056,80 @@ public class Database {
                 "PRIMARY KEY(" + CardCardContract.CardCardEntry.CARD1 + ", " +
                 CardCardContract.CardCardEntry.CARD2 + "))";*/
 
-
             // Insert the new row, returning the primary key value of the new row
-            long newRowId = db.insert(UserContract.UserEntry.TABLE_NAME, null, values);
+            long newRowId = db.insert(CardCardContract.CardCardEntry.TABLE_NAME, null, values);
 
             i = j;
         }
         return true;
     }
 
+    public static String sanitize(String str){
+        String sanitized = str.replace("{", "\\{");
+        String sanitized2 = sanitized.replace("}", "\\}");
+
+        return sanitized2;
+    }
+    public static String desanitize(String str){
+      /*  for(int i = 0; i < str.length(); i++){
+            if(str.charAt(i) == '{' || str.charAt(i) == '}'){
+            }
+        }*/
+        String sanitized = str.replace("\\{", "{");
+        String sanitized2 = sanitized.replace("\\}", "}");
+
+        return sanitized2;
+    }
+
+
     public static String getDump(Context context){
+
+      /*  System.out.println(sanitize("a{bcd}e"));
+        System.out.println(desanitize(sanitize("a{bcd}e")));
+*/
+
         DBHelper dbHelper = DBHelper.getInstance(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Charset charset = Charset.forName("ISO-8859-1");
 
         String[] selectionArgs = {};
         Cursor cursor = db.rawQuery(SQLCommands.SQL_DUMP1, selectionArgs);
         String JSON1 = "{";
         while(cursor.moveToNext()) {
             int id1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry._ID));
-            String us1 = cursor.getString(cursor.getColumnIndex(UserContract.UserEntry.USERNAME));
+            String us1 = sanitize(cursor.getString(cursor.getColumnIndex(UserContract.UserEntry.USERNAME)));
             byte[] pass1 = cursor.getBlob(cursor.getColumnIndex(UserContract.UserEntry.PASSWORD_HASH));
             byte[] salt1 = cursor.getBlob(cursor.getColumnIndex(UserContract.UserEntry.SALT));
             int sec1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.SECURITY_ENABLED));
             int dark1 = cursor.getInt(cursor.getColumnIndex(UserContract.UserEntry.DARK_MODE));
             long date1 = cursor.getLong(cursor.getColumnIndex(UserContract.UserEntry.DATE_CREATED));
+
+            /*ByteBuffer pass1i = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+            pass1i.put(pass1);
+            pass1i.flip();
+            long pass11 = pass1i.getLong();
+
+            //long salt11 = new BigInteger(salt1).longValue();
+            ByteBuffer salt1i = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+            salt1i.put(salt1);
+            salt1i.flip();
+            long salt11 = salt1i.getLong();*/
+
+            /*System.out.println("asdf");
+            System.out.println(pass1);
+            System.out.println(salt1);
+            System.out.println("asdf2");*/
+
+            String pass11 = new BigInteger(pass1).toString(16);
+            String salt11 = new BigInteger(salt1).toString(16);
+            /*System.out.println("asdf: ");
+            System.out.println(pass11);
+            System.out.println(salt11);*/
+
             JSON1 += "\n{\"_ID\"" + ": " + id1 + ",\n" +
                 "\"USERNAME\"" + ": " + "\"" + us1 + "\",\n" +
-                "\"PASSWORD_HASH\"" + ": " + pass1 + ",\n" +
-                "\"SALT\"" + ": " + salt1 + ",\n" +
+                "\"PASSWORD_HASH\"" + ": " + "\"" + pass11 + "\",\n" +
+                "\"SALT\"" + ": " + "\"" + salt11 + "\",\n" +
                 "\"SECURITY_ENABLED\"" + ": " + sec1 + ",\n" +
                 "\"DARK_MODE\"" + ": " + dark1 + ",\n" +
                 "\"DATE_CREATED\"" + ": " + date1 + "\n},";
@@ -993,8 +1142,8 @@ public class Database {
         String JSON2 = "{";
         while(cursor.moveToNext()) {
             int id2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry._ID));
-            String name2 = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
-            String description2 = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            String name2 = sanitize(cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME)));
+            String description2 = sanitize(cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION)));
             int in_drawer2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.IN_DRAWER));
             int is_deck2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.IS_DECK));
             int owner2 = cursor.getInt(cursor.getColumnIndex(CardContract.CardEntry.OWNER));

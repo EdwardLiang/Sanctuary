@@ -92,8 +92,8 @@ public class SettingsFragment extends PreferenceFragment {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 String dbDump = Database.getDump(getActivity());
-                System.out.println("DATABASE DUMP");
-                System.out.println(dbDump);
+                //System.out.println("DATABASE DUMP");
+                //System.out.println(dbDump);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, dbDump);
                 sendIntent.setType("text/plain");
                 Intent shareIntent = Intent.createChooser(sendIntent, null);
@@ -125,6 +125,7 @@ public class SettingsFragment extends PreferenceFragment {
                 uri = resultData.getData();
                 try {
                     String readin = readTextFromUri(uri);
+                    Database.dropTables(getActivity());
                     Database.parseDump(getActivity(), readin);
                 } catch (IOException e) {
                     e.printStackTrace();
