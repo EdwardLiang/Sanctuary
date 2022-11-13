@@ -938,6 +938,9 @@ public class Database {
                     /*if(j > 0) {
                         System.out.println("dump2.charAt(j - 1) == '%'" + (dump2.charAt(j - 1) == '%'));
                     }*/
+                    if (dump2.charAt(j) == '\n') {
+                        System.out.println("new line detected");
+                    }
                     j++;
                 }
             }
@@ -1082,8 +1085,9 @@ public class Database {
     public static String sanitize(String str){
         String sanitized = str.replace("{", "%{");
         String sanitized2 = sanitized.replace("}", "%}");
+        String sanitized3 = sanitized2.replace("\n", "^^^");
 
-        return sanitized2;
+        return sanitized3;
     }
     public static String desanitize(String str){
       /*  for(int i = 0; i < str.length(); i++){
@@ -1092,8 +1096,9 @@ public class Database {
         }*/
         String sanitized = str.replace("%{", "{");
         String sanitized2 = sanitized.replace("%}", "}");
+        String sanitized3 = sanitized2.replace("^^^", "\n");
 
-        return sanitized2;
+        return sanitized3;
     }
 
 
