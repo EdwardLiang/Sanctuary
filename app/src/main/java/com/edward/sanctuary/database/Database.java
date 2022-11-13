@@ -710,7 +710,10 @@ public class Database {
         for(int j = 0; j < 3; j++){
             while (true) {
                 //System.out.println(i);
-                if (dump.charAt(i) == '{' && flag == false) {
+                if(i > 0 && (dump.charAt(i) == '{' || dump.charAt(i) == '}') && dump.charAt(i - 1) == '%'){
+                    i++;
+                }
+                else if (dump.charAt(i) == '{' && flag == false) {
                     flag = true;
                     i++;
                     continue;
@@ -771,7 +774,7 @@ public class Database {
             int openPlace = 0;
             if(dump1.charAt(j) == '{'){
                 openPlace = j;
-                while(dump1.charAt(j) != '}' || (j > 0 && dump1.charAt(j) == '}' && dump1.charAt(j - 1) == '\\')){
+                while(dump1.charAt(j) != '}' || (j > 0 && dump1.charAt(j) == '}' && dump1.charAt(j - 1) == '%')){
                     j++;
                 }
             }
@@ -876,7 +879,7 @@ public class Database {
 
             ContentValues values = new ContentValues();
             values.put(UserContract.UserEntry._ID, Integer.parseInt(lines[0]));
-            values.put(UserContract.UserEntry.USERNAME, lines[1]);
+            values.put(UserContract.UserEntry.USERNAME, desanitize(lines[1]));
             //values.put(UserContract.UserEntry.PASSWORD_HASH, lines[2].getBytes());
             //values.put(UserContract.UserEntry.SALT, lines[3].getBytes());
             values.put(UserContract.UserEntry.PASSWORD_HASH, pass111);
@@ -915,14 +918,26 @@ public class Database {
         dump2 = dump2.substring(1, dump2.length() - 1);
         /*System.out.println("<this9>");
         System.out.println(dump2);*/
+        System.out.println(dump2);
         for(int i = 0; i < dump2.length(); i++){
-            System.out.println(i);
+            //System.out.println(i);
             int j = i;
             int openPlace = 0;
 
             if(dump2.charAt(j) == '{'){
                 openPlace = j;
-                while(dump2.charAt(j) != '}' || (j > 0 && dump2.charAt(j) == '}' && dump2.charAt(j - 1) == '\\')){
+                //System.out.println(dump2.charAt(j));
+                /*if(j > 0 && dump2.charAt(j) == '}' && dump2.charAt(j - 1) == '\\'){
+
+                }*/
+                while(dump2.charAt(j) != '}' || (j > 0 && dump2.charAt(j) == '}' && dump2.charAt(j - 1) == '%')){
+                    /*System.out.println("j: " + j);
+                    System.out.println("dump2.charAt(j) != '}': " + (dump2.charAt(j) != '}'));
+                    System.out.println("j > 0: " + (j > 0));
+                    System.out.println("dump2.charAt(j): " + (dump2.charAt(j) == '}'));*/
+                    /*if(j > 0) {
+                        System.out.println("dump2.charAt(j - 1) == '%'" + (dump2.charAt(j - 1) == '%'));
+                    }*/
                     j++;
                 }
             }
@@ -938,7 +953,7 @@ public class Database {
                 }
             }*/
             String o = dump2.substring(openPlace + 1, j);
-            System.out.println(o);
+            //System.out.println(o);
             //String[] lines = o.split(",");
            /* System.out.println("test");
             System.out.println(o);
@@ -965,8 +980,8 @@ public class Database {
 
             ContentValues values = new ContentValues();
             values.put(CardContract.CardEntry._ID, Integer.parseInt(lines[0]));
-            values.put(CardContract.CardEntry.NAME, lines[1]);
-            values.put(CardContract.CardEntry.DESCRIPTION, lines[2]);
+            values.put(CardContract.CardEntry.NAME, desanitize(lines[1]));
+            values.put(CardContract.CardEntry.DESCRIPTION, desanitize(lines[2]));
             values.put(CardContract.CardEntry.IN_DRAWER, Integer.parseInt(lines[3]));
             values.put(CardContract.CardEntry.IS_DECK, Integer.parseInt(lines[4]));
             values.put(CardContract.CardEntry.OWNER, Integer.parseInt(lines[5]));
@@ -1005,7 +1020,7 @@ public class Database {
             int openPlace = 0;
             if(dump3.charAt(j) == '{'){
                 openPlace = j;
-                while(dump3.charAt(j) != '}' || (j > 0 && dump3.charAt(j) == '}' && dump3.charAt(j - 1) == '\\')){
+                while(dump3.charAt(j) != '}' || (j > 0 && dump3.charAt(j) == '}' && dump3.charAt(j - 1) == '%')){
                     j++;
                 }
             }
@@ -1065,8 +1080,8 @@ public class Database {
     }
 
     public static String sanitize(String str){
-        String sanitized = str.replace("{", "\\{");
-        String sanitized2 = sanitized.replace("}", "\\}");
+        String sanitized = str.replace("{", "%{");
+        String sanitized2 = sanitized.replace("}", "%}");
 
         return sanitized2;
     }
@@ -1075,8 +1090,8 @@ public class Database {
             if(str.charAt(i) == '{' || str.charAt(i) == '}'){
             }
         }*/
-        String sanitized = str.replace("\\{", "{");
-        String sanitized2 = sanitized.replace("\\}", "}");
+        String sanitized = str.replace("%{", "{");
+        String sanitized2 = sanitized.replace("%}", "}");
 
         return sanitized2;
     }
