@@ -353,6 +353,44 @@ public class Database {
         return cards;
     }
 
+    public static Card getCardByName(String name, Context context){
+        DBHelper dbHelper = DBHelper.getInstance(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                CardContract.CardEntry._ID,
+                CardContract.CardEntry.NAME,
+                CardContract.CardEntry.DESCRIPTION,
+                CardContract.CardEntry.DATE_CREATED
+        };
+        String selection = CardContract.CardEntry.NAME + " = ?";
+        String[] selectionArgs = { name };
+        String sortOrder = CardContract.CardEntry.DATE_CREATED + " DESC";
+
+        Cursor cursor = db.query(
+                CardContract.CardEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+        while(cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(CardContract.CardEntry._ID));
+            String name2 = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.NAME));
+            String desc = cursor.getString(cursor.getColumnIndex(CardContract.CardEntry.DESCRIPTION));
+            long date = cursor.getLong(cursor.getColumnIndex(CardContract.CardEntry.DATE_CREATED));
+            Card card = new Card(name2, desc, date, itemId);
+            return card;
+        }
+        return null;
+
+
+
+    }
+
     public static Card getCard(long id, Context context){
         //For when the card is changed
         DBHelper dbHelper = DBHelper.getInstance(context);

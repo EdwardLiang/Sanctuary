@@ -14,6 +14,9 @@
         <activity android:name=".AddCard">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.MainActivity"/>
         </activity>
+        <activity android:name=".AddCardDirectDeck">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.ManageCardsInDeck"/>
+        </activity>
         <activity android:name=".cardactivity.SelectCardForDeck">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.MainActivity"/>
         </activity>

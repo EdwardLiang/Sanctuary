@@ -3,7 +3,30 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v21/ic_menu_camera.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v21/ic_menu_gallery.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v21/ic_menu_manage.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v21/ic_menu_send.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v21/ic_menu_share.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v21/ic_menu_slideshow.xml" value="0.223" />
         <entry key="app/src/main/res/drawable/ic_add_black_24dp.xml" value="0.1705" />
+        <entry key="app/src/main/res/drawable/ic_add_circle_outline_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_baseline_note_add_24.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_close_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_delete_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_delete_black_48dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_done_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_edit_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_exit_to_app_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_info_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_library_add_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_library_books_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_memory_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_remove_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_sd_card_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/ic_sync_black_24dp.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable/side_nav_bar.xml" value="0.223" />
         <entry key="app/src/main/res/layout/activity_add_card.xml" value="0.17135416666666667" />
         <entry key="app/src/main/res/layout/activity_card_detail.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.24947916666666667" />

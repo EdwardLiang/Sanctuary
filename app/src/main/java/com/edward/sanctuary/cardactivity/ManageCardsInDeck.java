@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.support.design.widget.FloatingActionButton;
+import com.edward.sanctuary.AddCard;
+import com.edward.sanctuary.AddCardDirectDeck;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 //import android.support.design.widget.Snackbar;
 import com.google.android.material.snackbar.Snackbar;
@@ -69,6 +71,24 @@ public class ManageCardsInDeck extends CardActivitySelect {
                 removeDialog();
             }
         });
+        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab5);
+        fab3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getCardAdapterSelect().clearSelected();
+                if(am != null){
+                    am.finish();
+                }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("DeckCard", card);
+
+                Intent intent = new Intent(v.getContext(), AddCardDirectDeck.class);
+                intent.putExtras(bundle);
+
+                startActivityForResult(intent, 2309);
+            }
+        });
+
     }
 
     private void removeDialog() {
@@ -164,6 +184,27 @@ public class ManageCardsInDeck extends CardActivitySelect {
                 e.printStackTrace();
             }
         }
+        if(resultCode == 766 || (requestCode == 2309) ){
+            try {
+                System.out.println("returned from adding new created card");
+                reloading.tryLock(1000, TimeUnit.MILLISECONDS);
+                if(!Database.cardExists(card.getCard_id(), this)){
+                    setResult(197);
+                    finish();
+                }
+                card = Database.getCard(card.getCard_id(), ManageCardsInDeck.this);
+                setTitle("Cards in: " + card.getCard_name());
+                reloadCards();
+                addNoMoreCard();
+                ca.setCardList(cards);
+                getCardAdapterSelect().clearSelected();
+                ca.notifyDataSetChanged();
+                reloading.unlock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
     @Override
     public void onBackPressed(){

@@ -46,6 +46,16 @@
             app:backgroundTint="@android:color/holo_orange_light"
             app:srcCompat="@drawable/ic_remove_black_24dp" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:contentDescription="@string/fab"
+            app:backgroundTint="@android:color/holo_orange_light"
+            app:srcCompat="@drawable/ic_baseline_note_add_24" />
+
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
