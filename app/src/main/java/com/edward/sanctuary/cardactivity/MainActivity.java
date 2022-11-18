@@ -34,6 +34,7 @@ import com.edward.sanctuary.database.Database;
 import com.edward.sanctuary.settings.Session;
 import com.edward.sanctuary.settings.SettingsActivity;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -125,6 +126,28 @@ public class MainActivity extends CardActivitySelect
                         .show();
             }
         });
+
+        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab3);
+        fab3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //List<Card> toDeck = ((CardAdapterSelect)ca).getSelected();
+
+                List<Card> selected = getCardAdapterSelect().getSelected();
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("cards", (Serializable) selected);
+
+                if(am != null){
+                    am.finish();
+                }
+
+                Intent intent = new Intent(view.getContext(), SelectCardForDeckFromMain.class);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, 2302);
+            }
+        });
+
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -244,6 +267,17 @@ public class MainActivity extends CardActivitySelect
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 2302 && resultCode == 189){
+            end = false;
+            reloadCards();
+            addNoMoreCard();
+            getCardAdapterSelect().setCardList(cards);
+            getCardAdapterSelect().notifyDataSetChanged();
+
+            Snackbar snackbar = Snackbar.make(navigationView, "Deck Created", Snackbar.LENGTH_LONG); // Don’t forget to show!
+            snackbar.show();
+        }
+
         if(requestCode == 2301 && resultCode == 188){
             end = false;
             reloadCards();

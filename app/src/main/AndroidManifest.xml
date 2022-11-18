@@ -17,6 +17,9 @@
         <activity android:name=".cardactivity.SelectCardForDeck">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.MainActivity"/>
         </activity>
+        <activity android:name=".cardactivity.SelectCardForDeckFromMain">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.MainActivity"/>
+        </activity>
         <activity android:name=".cardactivity.SelectCardsForDeck" android:label="@string/title_activity_select_cards_for_deck" android:parentActivityName=".cardactivity.SelectCardForDeck" android:theme="@style/Light">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.edward.sanctuary.cardactivity.SelectCardForDeck"/>
         </activity>
